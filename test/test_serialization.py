@@ -1,5 +1,6 @@
 import unittest
-from stormed.serialization import parse_method
+from stormed.serialization import parse_method, dump_method
+from stormed.method.connection import StartOk
 
 connection_start_payload = \
     ('\x00\n\x00\n\x00\t\x00\x00\x00\xfb\x07productS\x00\x00\x00\x08RabbitMQ'
@@ -20,6 +21,19 @@ class TestMethodSerialization(unittest.TestCase):
         self.assertEquals(m.server_properties['version'], '2.1.1')
         self.assertEquals(m.mechanisms, 'PLAIN AMQPLAIN')
         self.assertEquals(m.locales, 'en_US')
+
+    def test_dump_startok(self):
+        start_ok = StartOk(peer_properties=dict(client="stormed-amqp"),
+                           mechanism='PLAIN', response='', locale='en_US')
+        data = dump_method(start_ok)
+        self.assertEquals(len(data), 48)
+        start_ok2 = parse_method(data)
+        self.assertEquals(start_ok.mechanism, start_ok2.mechanism)
+        self.assertEquals(start_ok.response,  start_ok2.response)
+        self.assertEquals(start_ok.locale,    start_ok2.locale)
+        self.assertEquals(start_ok.peer_properties['client'],
+                          start_ok2.peer_properties['client'])
+        
 
 if __name__ == '__main__':
     unittest.main()

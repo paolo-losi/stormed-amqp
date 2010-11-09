@@ -8,7 +8,9 @@ class TestConnectionHandshake(testing.AsyncTestCase):
 
     def test_handshake(self):
         conn = Connection('localhost', io_loop=self.io_loop)
-        conn.connect(self.stop)
+        def on_connect():
+            conn.close(self.stop)
+        conn.connect(on_connect)
         self.wait()
 
 if __name__ == '__main__':

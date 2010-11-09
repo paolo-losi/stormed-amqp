@@ -7,3 +7,15 @@ class Enum(object):
         if name in self._names:
             return name
         raise AttributeError
+
+class WithFields(object):
+
+    fields = []
+    
+    def __init__(self, **kargs):
+        fnames = [ fname for fname, ftype in self.fields ]
+        for k,v in kargs.items():
+            if k in fnames:
+                setattr(self, k, v)
+            else:
+                raise AttributeError('%r in not a valid field name' % k)
