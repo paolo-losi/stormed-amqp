@@ -50,7 +50,7 @@ def dump_method(m):
     return '%s%s' % (header, dumped_vals)
 
 
-# --- low level parsing ---
+# --- low level parsing/dumping ---
 
 class BitDumper(object):
 

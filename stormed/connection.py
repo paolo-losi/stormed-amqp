@@ -81,7 +81,7 @@ class Connection(object):
             self.status = status.CLOSED
             self.on_close_callback()
         else:
-            #FIXME log errore
+            #FIXME log error
             print "ERROR", method
 
     def close(self, callback):
