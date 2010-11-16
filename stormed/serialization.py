@@ -59,6 +59,7 @@ class BitDumper(object):
         self.octet = 0
 
     def add_bit(self, bit):
+        assert self.bit_offset <= 7, "packing more that 8 bits is unsupported"
         self.octet |= (1 if bit else 0) << self.bit_offset
         self.bit_offset += 1
 
