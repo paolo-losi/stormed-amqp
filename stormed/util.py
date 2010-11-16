@@ -10,10 +10,10 @@ class Enum(object):
 
 class WithFields(object):
 
-    fields = []
+    _fields = []
     
     def __init__(self, **kargs):
-        fnames = [ fname for fname, ftype in self.fields ]
+        fnames = [ fname for fname, ftype in self._fields ]
         for k,v in kargs.items():
             if k in fnames:
                 setattr(self, k, v)
