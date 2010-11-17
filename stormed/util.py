@@ -19,3 +19,8 @@ class WithFields(object):
                 setattr(self, k, v)
             else:
                 raise AttributeError('%r in not a valid field name' % k)
+
+def add_method(klass):
+    def decorator(f):
+        setattr(klass, f.__name__, f)
+    return decorator

@@ -3,13 +3,12 @@ from tornado.iostream import IOStream
 from tornado.ioloop import IOLoop
 from tornado import stack_context
 
-from stormed.util import Enum
 from stormed.frame import FrameReader
 from stormed import frame
 from stormed.serialization import parse_method, table2str
-from stormed.method import connection
+from stormed.channel import Channel
+from stormed.method.connection import status, Close
 
-status = Enum('HANDSHAKE', 'CONNECTED', 'CLOSED', 'CLOSING')
 
 class Connection(object):
 
@@ -25,6 +24,7 @@ class Connection(object):
         self.on_connect_callback = None
         self.on_close_callback = None
         self.status = status.CLOSED
+        self.channels = [self]
 
     def connect(self, callback):
         if self.status is not status.CLOSED:
@@ -34,59 +34,35 @@ class Connection(object):
         self.stream = IOStream(socket.socket(), io_loop=self.io_loop)
         self.stream.connect((self.host, self.port), self._handshake)
 
+    def channel(self):
+        ch = Channel(channel_id=len(self.channels), conn=self)
+        self.channels.append(ch)
+        ch.open()
+        return ch
+
     def _handshake(self):
         self.stream.write('AMQP\x00\x00\x09\x01')
         FrameReader(self.stream, self._frame_loop)
 
     def _frame_loop(self, frame):
-        if frame.frame_type == 'method':
-            self.handle_method(frame)
-        if self.stream is not None:
+        self.channels[frame.channel].handle_frame(frame)
+        if self.stream:
             FrameReader(self.stream, self._frame_loop)
+
+    def handle_frame(self, frame):
+        method = frame.payload
+        if hasattr(method, 'handle'):
+            method.handle(self)
+        else:
+            #TODO better error reporting/handling
+            print "ERROR: %r not handled" % method._name
 
     def write_method(self, method, channel=0):
         f = frame.from_method(method, channel)
         self.stream.write(f)
 
-    def handle_method(self, method_frame):
-        method = method_frame.payload
-        if method._name == 'connection.start':
-            #FIXME handle missing AMQPLAIN mechanism
-            assert 'AMQPLAIN' in method.mechanisms.split(' ')
-            assert 'en_US' in method.locales.split(' ')
-            response = table2str(dict(LOGIN    = self.username,
-                                      PASSWORD = self.password))
-            #TODO more client_properties
-            client_properties = {'client': 'stormed-amqp'}
-
-            start_ok = connection.StartOk(client_properties=client_properties,
-                                          mechanism='AMQPLAIN',
-                                          response=response,
-                                          locale='en_US')
-            self.write_method(start_ok)
-        elif method._name == 'connection.tune':
-            tune_ok = connection.TuneOk(frame_max=method.frame_max,
-                                        channel_max=method.channel_max,
-                                        heartbeat=method.heartbeat)
-            self.write_method(tune_ok)
-            _open = connection.Open(virtual_host=self.vhost, capabilities='',
-                                    insist=0)
-            self.write_method(_open)
-        elif method._name == 'connection.open-ok':
-            self.status = status.CONNECTED
-            self.on_connect_callback()
-        elif method._name == 'connection.close-ok':
-            self.stream.close()
-            self.stream = None
-            self.status = status.CLOSED
-            self.on_close_callback()
-        else:
-            #FIXME log error
-            print "ERROR", method
-
     def close(self, callback):
-        _close = connection.Close(reply_code=0, reply_text='', class_id=0,
-                                                               method_id=0)
+        _close = Close(reply_code=0, reply_text='', class_id=0, method_id=0)
         self.write_method(_close)
         self.status = status.CLOSING
         self.on_close_callback = stack_context.wrap(callback)

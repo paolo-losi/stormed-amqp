@@ -32,6 +32,7 @@ def dump(o):
         dumped_vals.append(bit_dumper.get_octet())
     return ''.join(dumped_vals)
 
+#TODO MOVE TO frame.py
 method_header = Struct('!HH')
 def parse_method(data):
     class_id, method_id = method_header.unpack(data[:4])
@@ -44,6 +45,7 @@ def parse_method(data):
         setattr(inst, name, val)
     return inst
 
+#TODO MOVE TO frame.py
 def dump_method(m):
     header = method_header.pack(m._class_id, m._method_id)
     dumped_vals = dump(m)
