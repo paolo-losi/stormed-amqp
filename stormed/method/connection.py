@@ -40,4 +40,3 @@ def handle(self, conn):
     conn.stream.close()
     conn.stream = None
     conn.status = status.CLOSED
-    conn.on_close_callback()

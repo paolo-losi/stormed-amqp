@@ -70,3 +70,54 @@ def body_frames_from_msg(msg, channel):
         header = frame_header.pack('\x03', channel, len(payload))
         frames.append('%s%s%s' % (header, payload, '\xCE'))
     return frames
+
+class FrameHandler(object):
+
+    def __init__(self, connection):
+        self.conn = connection
+        self._sync_method_queue = []
+        self._pending_meth = None
+        self._pending_cb = None
+
+    def handle_frame(self, frame):
+        method = frame.payload
+        if hasattr(method, 'handle'):
+            method.handle(self)
+        else:
+            #TODO better error reporting/handling
+            print "ERROR: %r not handled" % method._name
+        if self._pending_meth:
+            if method._name.startswith(self._pending_meth._name):
+                if self._pending_cb:
+                    self._pending_cb()
+                self._pending_cb = None
+                self._pending_meth = None
+                self._flush()
+
+    def send_method(self, method, callback=None, message=None):
+        self._sync_method_queue.append( (method, callback, message) )
+        self._flush()
+
+    def _flush(self):
+        while self._pending_meth is None and self._sync_method_queue:
+            method, callback, msg = self._sync_method_queue.pop(0)
+            self.write_method(method)
+            if msg:
+                self.write_msg(msg)
+            if method._sync:
+                self._pending_meth = method
+                self._pending_cb = callback
+            else:
+                if callback is not None:
+                    callback()
+
+    def write_method(self, method):
+        f = from_method(method, self.channel_id)
+        self.conn.stream.write(f)
+
+    def write_msg(self, msg):
+        frames = []
+        frames.append(content_header_from_msg(msg, self.channel_id))
+        frames.extend(body_frames_from_msg(msg, self.channel_id))
+        for f in frames:
+            self.conn.stream.write(f)

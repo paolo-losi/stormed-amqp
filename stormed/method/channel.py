@@ -6,4 +6,8 @@ status = Enum('OPENING', 'OPENED', 'CLOSED', 'CLOSING')
 
 @add_method(OpenOk)
 def handle(self, channel):
-    channel.status = 'OPENED'
+    channel.status = status.OPENED
+
+@add_method(CloseOk)
+def handle(self, channel):
+    channel.status = status.CLOSED

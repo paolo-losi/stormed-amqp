@@ -15,7 +15,6 @@ class TestChannel(testing.AsyncTestCase):
     
         def on_connect():
             ch = conn.channel(callback=clean_up)
-            ch.exchange_declare(name='test', durable=True, callback=clean_up)
 
         conn.connect(on_connect)
         self.wait()
@@ -24,11 +23,14 @@ class TestChannel(testing.AsyncTestCase):
         conn = Connection('localhost', io_loop=self.io_loop)
         test_msg = Message('test')
 
+        def clean_up():
+            conn.close(self.stop)
+
         def on_connect():
             ch = conn.channel()
             ch.exchange_declare(name='test', durable=True)
             ch.publish(test_msg, exchange='test', routing_key='test')
-            conn.close(self.stop)
+            ch.close(clean_up)
 
         conn.connect(on_connect)
         self.wait()
