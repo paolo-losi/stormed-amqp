@@ -14,6 +14,7 @@ class TestChannel(testing.AsyncTestCase):
     
         def on_connect():
             ch = conn.channel()
+            ch.exchange_declare(name='test', durable=True)
             ch.on_tasks_completed = clean_up
 
         conn.connect(on_connect)

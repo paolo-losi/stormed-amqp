@@ -1,5 +1,6 @@
 from stormed.util import Enum
 from stormed.method.channel import Open, status
+from stormed.method import exchange
 
 class Channel(object):
 
@@ -14,7 +15,18 @@ class Channel(object):
     def open(self):
         self._add_task(Open(out_of_band=''))
 
-    #TODO define FrameHandler class?    
+    def exchange_declare(self, name, type="direct", durable=False):
+        self._add_task(exchange.Declare(ticket      = 0,
+                                        exchange    = name,
+                                        type        = type,
+                                        passive     = False,
+                                        durable     = durable,
+                                        auto_delete = False,
+                                        internal    = False,
+                                        nowait      = False,
+                                        arguments   = dict()))
+
+    #TODO do we need FrameHandler class?
     def handle_frame(self, frame):
         method = frame.payload
         if hasattr(method, 'handle'):
