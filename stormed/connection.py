@@ -35,6 +35,12 @@ class Connection(FrameHandler):
         self.stream.connect((self.host, self.port), self._handshake)
         self.on_connect_callback = callback
 
+    def close(self, callback=None):
+        #FIXME close all channel to flush _sync_method_queue
+        _close = Close(reply_code=0, reply_text='', class_id=0, method_id=0)
+        self.send_method(_close, callback)
+        self.status = status.CLOSING
+
     def channel(self, callback=None):
         ch = Channel(channel_id=len(self.channels), conn=self)
         self.channels.append(ch)
@@ -49,9 +55,3 @@ class Connection(FrameHandler):
         self.channels[frame.channel].handle_frame(frame)
         if self.stream:
             FrameReader(self.stream, self._frame_loop)
-
-    def close(self, callback=None):
-        #FIXME close all channel to flush _sync_method_queue
-        _close = Close(reply_code=0, reply_text='', class_id=0, method_id=0)
-        self.send_method(_close, callback)
-        self.status = status.CLOSING
