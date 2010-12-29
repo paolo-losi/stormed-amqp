@@ -34,10 +34,10 @@ class Connection(object):
         self.stream = IOStream(socket.socket(), io_loop=self.io_loop)
         self.stream.connect((self.host, self.port), self._handshake)
 
-    def channel(self):
+    def channel(self, callback=None):
         ch = Channel(channel_id=len(self.channels), conn=self)
         self.channels.append(ch)
-        ch.open()
+        ch.open(callback)
         return ch
 
     def _handshake(self):
@@ -61,8 +61,16 @@ class Connection(object):
         f = frame.from_method(method, channel)
         self.stream.write(f)
 
-    def close(self, callback):
+    def write_msg(self, msg, channel):
+        frames = []
+        frames.append(frame.content_header_from_msg(msg, channel))
+        frames.extend(frame.body_frames_from_msg(msg, channel))
+        for f in frames:
+            self.stream.write(f)
+
+    def close(self, callback=None):
         _close = Close(reply_code=0, reply_text='', class_id=0, method_id=0)
         self.write_method(_close)
         self.status = status.CLOSING
-        self.on_close_callback = stack_context.wrap(callback)
+        if callback is not None:
+            self.on_close_callback = stack_context.wrap(callback)

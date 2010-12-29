@@ -1,6 +1,6 @@
 import struct
 
-from stormed.serialization import parse_method, dump_method
+from stormed.serialization import parse_method, dump_method, dump_content_header
 
 frame_header = struct.Struct('!cHL')
 
@@ -56,3 +56,17 @@ def from_method(method, channel=0):
     payload = dump_method(method)
     header = frame_header.pack('\x01', channel, len(payload))
     return '%s%s%s' % (header, payload, '\xCE')
+
+def content_header_from_msg(msg, channel):
+    payload = dump_content_header(msg)
+    header = frame_header.pack('\x02', channel, len(payload))
+    return '%s%s%s' % (header, payload, '\xCE')
+
+def body_frames_from_msg(msg, channel):
+    max_size = 2**16 #FIXME should be set by connection negotiation
+    frames = []
+    for offset in range(0, len(msg.encoded_body), max_size):
+        payload = msg.encoded_body[offset:offset + max_size]
+        header = frame_header.pack('\x03', channel, len(payload))
+        frames.append('%s%s%s' % (header, payload, '\xCE'))
+    return frames

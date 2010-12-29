@@ -17,16 +17,19 @@ def dump(o):
     dumped_vals = []
     bit_dumper = None
     for name, typ in o._fields:
+        val = getattr(o, name)
+        if val is None:
+            continue
         if typ == 'bit':
             if bit_dumper is None:
                 bit_dumper = BitDumper()
-            bit_dumper.add_bit(getattr(o, name))
+            bit_dumper.add_bit(val)
         else:
             if bit_dumper is not None:
                 dumped_vals.append(bit_dumper.get_octet())
                 bit_dumper = None
             dumper = globals()['dump_%s' % typ]
-            v = dumper(getattr(o, name))
+            v = dumper(val)
             dumped_vals.append(v)
     if bit_dumper is not None:
         dumped_vals.append(bit_dumper.get_octet())
@@ -48,9 +51,21 @@ def parse_method(data):
 #TODO MOVE TO frame.py
 def dump_method(m):
     header = method_header.pack(m._class_id, m._method_id)
-    dumped_vals = dump(m)
-    return '%s%s' % (header, dumped_vals)
+    return '%s%s' % (header, dump(m))
 
+#TODO MOVE TO frame.py
+content_header = Struct('!HHQH')
+def dump_content_header(msg):
+    assert len(msg._fields) <= 15, "prop_flags > 15 not supported"
+    prop_flags = 0
+    for offset, (fname, ftype) in zip(range(15, 0, -1), msg._fields):
+        if getattr(msg, fname) is not None:
+            prop_flags |= 2 ** offset
+    chp = content_header.pack(60, #basic class
+                              0,
+                              len(msg.encoded_body),
+                              prop_flags)
+    return '%s%s' % (chp, dump(msg))
 
 # --- low level parsing/dumping ---
 
