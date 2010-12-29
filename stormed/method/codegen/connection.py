@@ -6,6 +6,7 @@ class Start(WithFields):
     _name      = "connection.start"
     _class_id  = 10
     _method_id = 10
+    _sync      = True
     _fields    = [
         ('version_major'     , 'octet'),
         ('version_minor'     , 'octet'),
@@ -19,6 +20,7 @@ class StartOk(WithFields):
     _name      = "connection.start-ok"
     _class_id  = 10
     _method_id = 11
+    _sync      = False
     _fields    = [
         ('client_properties' , 'table'),
         ('mechanism'         , 'shortstr'),
@@ -31,6 +33,7 @@ class Secure(WithFields):
     _name      = "connection.secure"
     _class_id  = 10
     _method_id = 20
+    _sync      = True
     _fields    = [
         ('challenge'         , 'longstr'),
     ]
@@ -40,6 +43,7 @@ class SecureOk(WithFields):
     _name      = "connection.secure-ok"
     _class_id  = 10
     _method_id = 21
+    _sync      = False
     _fields    = [
         ('response'          , 'longstr'),
     ]
@@ -49,6 +53,7 @@ class Tune(WithFields):
     _name      = "connection.tune"
     _class_id  = 10
     _method_id = 30
+    _sync      = True
     _fields    = [
         ('channel_max'       , 'short'),
         ('frame_max'         , 'long'),
@@ -60,6 +65,7 @@ class TuneOk(WithFields):
     _name      = "connection.tune-ok"
     _class_id  = 10
     _method_id = 31
+    _sync      = False
     _fields    = [
         ('channel_max'       , 'short'),
         ('frame_max'         , 'long'),
@@ -71,6 +77,7 @@ class Open(WithFields):
     _name      = "connection.open"
     _class_id  = 10
     _method_id = 40
+    _sync      = True
     _fields    = [
         ('virtual_host'      , 'shortstr'),
         ('capabilities'      , 'shortstr'),
@@ -82,6 +89,7 @@ class OpenOk(WithFields):
     _name      = "connection.open-ok"
     _class_id  = 10
     _method_id = 41
+    _sync      = False
     _fields    = [
         ('known_hosts'       , 'shortstr'),
     ]
@@ -91,6 +99,7 @@ class Close(WithFields):
     _name      = "connection.close"
     _class_id  = 10
     _method_id = 50
+    _sync      = True
     _fields    = [
         ('reply_code'        , 'short'),
         ('reply_text'        , 'shortstr'),
@@ -103,6 +112,7 @@ class CloseOk(WithFields):
     _name      = "connection.close-ok"
     _class_id  = 10
     _method_id = 51
+    _sync      = False
     _fields    = [
     ]
 

@@ -6,6 +6,7 @@ class Declare(WithFields):
     _name      = "exchange.declare"
     _class_id  = 40
     _method_id = 10
+    _sync      = True
     _fields    = [
         ('ticket'            , 'short'),
         ('exchange'          , 'shortstr'),
@@ -23,6 +24,7 @@ class DeclareOk(WithFields):
     _name      = "exchange.declare-ok"
     _class_id  = 40
     _method_id = 11
+    _sync      = False
     _fields    = [
     ]
 
@@ -31,6 +33,7 @@ class Delete(WithFields):
     _name      = "exchange.delete"
     _class_id  = 40
     _method_id = 20
+    _sync      = True
     _fields    = [
         ('ticket'            , 'short'),
         ('exchange'          , 'shortstr'),
@@ -43,6 +46,7 @@ class DeleteOk(WithFields):
     _name      = "exchange.delete-ok"
     _class_id  = 40
     _method_id = 21
+    _sync      = False
     _fields    = [
     ]
 
@@ -51,6 +55,7 @@ class Bind(WithFields):
     _name      = "exchange.bind"
     _class_id  = 40
     _method_id = 30
+    _sync      = True
     _fields    = [
         ('ticket'            , 'short'),
         ('destination'       , 'shortstr'),
@@ -65,6 +70,7 @@ class BindOk(WithFields):
     _name      = "exchange.bind-ok"
     _class_id  = 40
     _method_id = 31
+    _sync      = False
     _fields    = [
     ]
 
@@ -73,6 +79,7 @@ class Unbind(WithFields):
     _name      = "exchange.unbind"
     _class_id  = 40
     _method_id = 40
+    _sync      = True
     _fields    = [
         ('ticket'            , 'short'),
         ('destination'       , 'shortstr'),
@@ -87,6 +94,7 @@ class UnbindOk(WithFields):
     _name      = "exchange.unbind-ok"
     _class_id  = 40
     _method_id = 51
+    _sync      = False
     _fields    = [
     ]
 

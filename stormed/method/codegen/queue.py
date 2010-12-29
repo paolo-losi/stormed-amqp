@@ -6,6 +6,7 @@ class Declare(WithFields):
     _name      = "queue.declare"
     _class_id  = 50
     _method_id = 10
+    _sync      = True
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -22,6 +23,7 @@ class DeclareOk(WithFields):
     _name      = "queue.declare-ok"
     _class_id  = 50
     _method_id = 11
+    _sync      = False
     _fields    = [
         ('queue'             , 'shortstr'),
         ('message_count'     , 'long'),
@@ -33,6 +35,7 @@ class Bind(WithFields):
     _name      = "queue.bind"
     _class_id  = 50
     _method_id = 20
+    _sync      = True
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -47,6 +50,7 @@ class BindOk(WithFields):
     _name      = "queue.bind-ok"
     _class_id  = 50
     _method_id = 21
+    _sync      = False
     _fields    = [
     ]
 
@@ -55,6 +59,7 @@ class Purge(WithFields):
     _name      = "queue.purge"
     _class_id  = 50
     _method_id = 30
+    _sync      = True
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -66,6 +71,7 @@ class PurgeOk(WithFields):
     _name      = "queue.purge-ok"
     _class_id  = 50
     _method_id = 31
+    _sync      = False
     _fields    = [
         ('message_count'     , 'long'),
     ]
@@ -75,6 +81,7 @@ class Delete(WithFields):
     _name      = "queue.delete"
     _class_id  = 50
     _method_id = 40
+    _sync      = True
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -88,6 +95,7 @@ class DeleteOk(WithFields):
     _name      = "queue.delete-ok"
     _class_id  = 50
     _method_id = 41
+    _sync      = False
     _fields    = [
         ('message_count'     , 'long'),
     ]
@@ -97,6 +105,7 @@ class Unbind(WithFields):
     _name      = "queue.unbind"
     _class_id  = 50
     _method_id = 50
+    _sync      = True
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -110,6 +119,7 @@ class UnbindOk(WithFields):
     _name      = "queue.unbind-ok"
     _class_id  = 50
     _method_id = 51
+    _sync      = False
     _fields    = [
     ]
 

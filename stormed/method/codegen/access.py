@@ -6,6 +6,7 @@ class Request(WithFields):
     _name      = "access.request"
     _class_id  = 30
     _method_id = 10
+    _sync      = True
     _fields    = [
         ('realm'             , 'shortstr'),
         ('exclusive'         , 'bit'),
@@ -20,6 +21,7 @@ class RequestOk(WithFields):
     _name      = "access.request-ok"
     _class_id  = 30
     _method_id = 11
+    _sync      = False
     _fields    = [
         ('ticket'            , 'short'),
     ]
