@@ -16,11 +16,22 @@ def gen_constant(specs):
         c.update(comment = '# %(class)s' % c if 'class' in c else '')
         fout.write(template % c)
 
+properties_template = "properties = [\n%s\n]\n\n"
+
+def gen_properties(properties):
+    if not properties:
+        return ""
+    prop_s = [ "        (%-20r, %r),\n" % (fix_name(p['name']),
+                                           str(p['type']))
+               for p in properties ]
+    return properties_template % (''.join(prop_s))
+        
+
 file_template = \
 """
 from stormed.util import WithFields
 
-%s
+%s%s
 
 id2method = {
 %s
@@ -48,7 +59,7 @@ def gen_methods(specs):
             for f in m['arguments']:
                 typ = f['type'] if 'type' in f else domains[f['domain']]
                 fname = fix_name(f['name'])
-                fields.append("\n        (%-20r, %r)," % (fname, typ))
+                fields.append("\n        (%-20r, %r)," % (fname, str(typ)))
             klass_name = _camel_case(m['name'])
             method_classes.append(method_template % dict(
                 klass_name  = klass_name,
@@ -60,7 +71,9 @@ def gen_methods(specs):
             ))
             id2method_entries.append('    %-2d: %s,' % (m['id'], klass_name))
 
-        s = file_template % ('\n'.join(method_classes),
+        properties = gen_properties(c.get('properties', []))
+        s = file_template % (properties,
+                             '\n'.join(method_classes),
                              '\n'.join(id2method_entries))
         fout = open(class_filename, 'w')
         fout.write(s)
@@ -98,7 +111,7 @@ def _camel_case(s):
     return s.title().replace('-', '')
 
 def fix_name(s):
-    return s.replace(' ','_').replace('-','_')
+    return s.replace(' ','_').replace('-','_').encode('ascii')
 
 if __name__ == '__main__':
     main()

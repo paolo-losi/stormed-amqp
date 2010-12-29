@@ -7,14 +7,14 @@ class Declare(WithFields):
     _class_id  = 50
     _method_id = 10
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'queue'            , u'shortstr'),
-        (u'passive'          , u'bit'),
-        (u'durable'          , u'bit'),
-        (u'exclusive'        , u'bit'),
-        (u'auto_delete'      , u'bit'),
-        (u'nowait'           , u'bit'),
-        (u'arguments'        , u'table'),
+        ('ticket'            , 'short'),
+        ('queue'             , 'shortstr'),
+        ('passive'           , 'bit'),
+        ('durable'           , 'bit'),
+        ('exclusive'         , 'bit'),
+        ('auto_delete'       , 'bit'),
+        ('nowait'            , 'bit'),
+        ('arguments'         , 'table'),
     ]
 
 class DeclareOk(WithFields):
@@ -23,9 +23,9 @@ class DeclareOk(WithFields):
     _class_id  = 50
     _method_id = 11
     _fields    = [
-        (u'queue'            , u'shortstr'),
-        (u'message_count'    , u'long'),
-        (u'consumer_count'   , u'long'),
+        ('queue'             , 'shortstr'),
+        ('message_count'     , 'long'),
+        ('consumer_count'    , 'long'),
     ]
 
 class Bind(WithFields):
@@ -34,12 +34,12 @@ class Bind(WithFields):
     _class_id  = 50
     _method_id = 20
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'queue'            , u'shortstr'),
-        (u'exchange'         , u'shortstr'),
-        (u'routing_key'      , u'shortstr'),
-        (u'nowait'           , u'bit'),
-        (u'arguments'        , u'table'),
+        ('ticket'            , 'short'),
+        ('queue'             , 'shortstr'),
+        ('exchange'          , 'shortstr'),
+        ('routing_key'       , 'shortstr'),
+        ('nowait'            , 'bit'),
+        ('arguments'         , 'table'),
     ]
 
 class BindOk(WithFields):
@@ -56,9 +56,9 @@ class Purge(WithFields):
     _class_id  = 50
     _method_id = 30
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'queue'            , u'shortstr'),
-        (u'nowait'           , u'bit'),
+        ('ticket'            , 'short'),
+        ('queue'             , 'shortstr'),
+        ('nowait'            , 'bit'),
     ]
 
 class PurgeOk(WithFields):
@@ -67,7 +67,7 @@ class PurgeOk(WithFields):
     _class_id  = 50
     _method_id = 31
     _fields    = [
-        (u'message_count'    , u'long'),
+        ('message_count'     , 'long'),
     ]
 
 class Delete(WithFields):
@@ -76,11 +76,11 @@ class Delete(WithFields):
     _class_id  = 50
     _method_id = 40
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'queue'            , u'shortstr'),
-        (u'if_unused'        , u'bit'),
-        (u'if_empty'         , u'bit'),
-        (u'nowait'           , u'bit'),
+        ('ticket'            , 'short'),
+        ('queue'             , 'shortstr'),
+        ('if_unused'         , 'bit'),
+        ('if_empty'          , 'bit'),
+        ('nowait'            , 'bit'),
     ]
 
 class DeleteOk(WithFields):
@@ -89,7 +89,7 @@ class DeleteOk(WithFields):
     _class_id  = 50
     _method_id = 41
     _fields    = [
-        (u'message_count'    , u'long'),
+        ('message_count'     , 'long'),
     ]
 
 class Unbind(WithFields):
@@ -98,11 +98,11 @@ class Unbind(WithFields):
     _class_id  = 50
     _method_id = 50
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'queue'            , u'shortstr'),
-        (u'exchange'         , u'shortstr'),
-        (u'routing_key'      , u'shortstr'),
-        (u'arguments'        , u'table'),
+        ('ticket'            , 'short'),
+        ('queue'             , 'shortstr'),
+        ('exchange'          , 'shortstr'),
+        ('routing_key'       , 'shortstr'),
+        ('arguments'         , 'table'),
     ]
 
 class UnbindOk(WithFields):

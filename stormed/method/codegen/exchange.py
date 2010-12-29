@@ -7,15 +7,15 @@ class Declare(WithFields):
     _class_id  = 40
     _method_id = 10
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'exchange'         , u'shortstr'),
-        (u'type'             , u'shortstr'),
-        (u'passive'          , u'bit'),
-        (u'durable'          , u'bit'),
-        (u'auto_delete'      , u'bit'),
-        (u'internal'         , u'bit'),
-        (u'nowait'           , u'bit'),
-        (u'arguments'        , u'table'),
+        ('ticket'            , 'short'),
+        ('exchange'          , 'shortstr'),
+        ('type'              , 'shortstr'),
+        ('passive'           , 'bit'),
+        ('durable'           , 'bit'),
+        ('auto_delete'       , 'bit'),
+        ('internal'          , 'bit'),
+        ('nowait'            , 'bit'),
+        ('arguments'         , 'table'),
     ]
 
 class DeclareOk(WithFields):
@@ -32,10 +32,10 @@ class Delete(WithFields):
     _class_id  = 40
     _method_id = 20
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'exchange'         , u'shortstr'),
-        (u'if_unused'        , u'bit'),
-        (u'nowait'           , u'bit'),
+        ('ticket'            , 'short'),
+        ('exchange'          , 'shortstr'),
+        ('if_unused'         , 'bit'),
+        ('nowait'            , 'bit'),
     ]
 
 class DeleteOk(WithFields):
@@ -52,12 +52,12 @@ class Bind(WithFields):
     _class_id  = 40
     _method_id = 30
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'destination'      , u'shortstr'),
-        (u'source'           , u'shortstr'),
-        (u'routing_key'      , u'shortstr'),
-        (u'nowait'           , u'bit'),
-        (u'arguments'        , u'table'),
+        ('ticket'            , 'short'),
+        ('destination'       , 'shortstr'),
+        ('source'            , 'shortstr'),
+        ('routing_key'       , 'shortstr'),
+        ('nowait'            , 'bit'),
+        ('arguments'         , 'table'),
     ]
 
 class BindOk(WithFields):
@@ -74,12 +74,12 @@ class Unbind(WithFields):
     _class_id  = 40
     _method_id = 40
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'destination'      , u'shortstr'),
-        (u'source'           , u'shortstr'),
-        (u'routing_key'      , u'shortstr'),
-        (u'nowait'           , u'bit'),
-        (u'arguments'        , u'table'),
+        ('ticket'            , 'short'),
+        ('destination'       , 'shortstr'),
+        ('source'            , 'shortstr'),
+        ('routing_key'       , 'shortstr'),
+        ('nowait'            , 'bit'),
+        ('arguments'         , 'table'),
     ]
 
 class UnbindOk(WithFields):

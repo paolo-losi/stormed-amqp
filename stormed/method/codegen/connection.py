@@ -7,11 +7,11 @@ class Start(WithFields):
     _class_id  = 10
     _method_id = 10
     _fields    = [
-        (u'version_major'    , u'octet'),
-        (u'version_minor'    , u'octet'),
-        (u'server_properties', u'table'),
-        (u'mechanisms'       , u'longstr'),
-        (u'locales'          , u'longstr'),
+        ('version_major'     , 'octet'),
+        ('version_minor'     , 'octet'),
+        ('server_properties' , 'table'),
+        ('mechanisms'        , 'longstr'),
+        ('locales'           , 'longstr'),
     ]
 
 class StartOk(WithFields):
@@ -20,10 +20,10 @@ class StartOk(WithFields):
     _class_id  = 10
     _method_id = 11
     _fields    = [
-        (u'client_properties', u'table'),
-        (u'mechanism'        , u'shortstr'),
-        (u'response'         , u'longstr'),
-        (u'locale'           , u'shortstr'),
+        ('client_properties' , 'table'),
+        ('mechanism'         , 'shortstr'),
+        ('response'          , 'longstr'),
+        ('locale'            , 'shortstr'),
     ]
 
 class Secure(WithFields):
@@ -32,7 +32,7 @@ class Secure(WithFields):
     _class_id  = 10
     _method_id = 20
     _fields    = [
-        (u'challenge'        , u'longstr'),
+        ('challenge'         , 'longstr'),
     ]
 
 class SecureOk(WithFields):
@@ -41,7 +41,7 @@ class SecureOk(WithFields):
     _class_id  = 10
     _method_id = 21
     _fields    = [
-        (u'response'         , u'longstr'),
+        ('response'          , 'longstr'),
     ]
 
 class Tune(WithFields):
@@ -50,9 +50,9 @@ class Tune(WithFields):
     _class_id  = 10
     _method_id = 30
     _fields    = [
-        (u'channel_max'      , u'short'),
-        (u'frame_max'        , u'long'),
-        (u'heartbeat'        , u'short'),
+        ('channel_max'       , 'short'),
+        ('frame_max'         , 'long'),
+        ('heartbeat'         , 'short'),
     ]
 
 class TuneOk(WithFields):
@@ -61,9 +61,9 @@ class TuneOk(WithFields):
     _class_id  = 10
     _method_id = 31
     _fields    = [
-        (u'channel_max'      , u'short'),
-        (u'frame_max'        , u'long'),
-        (u'heartbeat'        , u'short'),
+        ('channel_max'       , 'short'),
+        ('frame_max'         , 'long'),
+        ('heartbeat'         , 'short'),
     ]
 
 class Open(WithFields):
@@ -72,9 +72,9 @@ class Open(WithFields):
     _class_id  = 10
     _method_id = 40
     _fields    = [
-        (u'virtual_host'     , u'shortstr'),
-        (u'capabilities'     , u'shortstr'),
-        (u'insist'           , u'bit'),
+        ('virtual_host'      , 'shortstr'),
+        ('capabilities'      , 'shortstr'),
+        ('insist'            , 'bit'),
     ]
 
 class OpenOk(WithFields):
@@ -83,7 +83,7 @@ class OpenOk(WithFields):
     _class_id  = 10
     _method_id = 41
     _fields    = [
-        (u'known_hosts'      , u'shortstr'),
+        ('known_hosts'       , 'shortstr'),
     ]
 
 class Close(WithFields):
@@ -92,10 +92,10 @@ class Close(WithFields):
     _class_id  = 10
     _method_id = 50
     _fields    = [
-        (u'reply_code'       , u'short'),
-        (u'reply_text'       , u'shortstr'),
-        (u'class_id'         , u'short'),
-        (u'method_id'        , u'short'),
+        ('reply_code'        , 'short'),
+        ('reply_text'        , 'shortstr'),
+        ('class_id'          , 'short'),
+        ('method_id'         , 'short'),
     ]
 
 class CloseOk(WithFields):

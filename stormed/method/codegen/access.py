@@ -7,12 +7,12 @@ class Request(WithFields):
     _class_id  = 30
     _method_id = 10
     _fields    = [
-        (u'realm'            , u'shortstr'),
-        (u'exclusive'        , u'bit'),
-        (u'passive'          , u'bit'),
-        (u'active'           , u'bit'),
-        (u'write'            , u'bit'),
-        (u'read'             , u'bit'),
+        ('realm'             , 'shortstr'),
+        ('exclusive'         , 'bit'),
+        ('passive'           , 'bit'),
+        ('active'            , 'bit'),
+        ('write'             , 'bit'),
+        ('read'              , 'bit'),
     ]
 
 class RequestOk(WithFields):
@@ -21,7 +21,7 @@ class RequestOk(WithFields):
     _class_id  = 30
     _method_id = 11
     _fields    = [
-        (u'ticket'           , u'short'),
+        ('ticket'            , 'short'),
     ]
 
 

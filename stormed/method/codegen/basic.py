@@ -1,15 +1,33 @@
 
 from stormed.util import WithFields
 
+properties = [
+        ('content_type'      , 'shortstr'),
+        ('content_encoding'  , 'shortstr'),
+        ('headers'           , 'table'),
+        ('delivery_mode'     , 'octet'),
+        ('priority'          , 'octet'),
+        ('correlation_id'    , 'shortstr'),
+        ('reply_to'          , 'shortstr'),
+        ('expiration'        , 'shortstr'),
+        ('message_id'        , 'shortstr'),
+        ('timestamp'         , 'timestamp'),
+        ('type'              , 'shortstr'),
+        ('user_id'           , 'shortstr'),
+        ('app_id'            , 'shortstr'),
+        ('cluster_id'        , 'shortstr'),
+
+]
+
 class Qos(WithFields):
 
     _name      = "basic.qos"
     _class_id  = 60
     _method_id = 10
     _fields    = [
-        (u'prefetch_size'    , u'long'),
-        (u'prefetch_count'   , u'short'),
-        (u'global'           , u'bit'),
+        ('prefetch_size'     , 'long'),
+        ('prefetch_count'    , 'short'),
+        ('global'            , 'bit'),
     ]
 
 class QosOk(WithFields):
@@ -26,14 +44,14 @@ class Consume(WithFields):
     _class_id  = 60
     _method_id = 20
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'queue'            , u'shortstr'),
-        (u'consumer_tag'     , u'shortstr'),
-        (u'no_local'         , u'bit'),
-        (u'no_ack'           , u'bit'),
-        (u'exclusive'        , u'bit'),
-        (u'nowait'           , u'bit'),
-        (u'arguments'        , u'table'),
+        ('ticket'            , 'short'),
+        ('queue'             , 'shortstr'),
+        ('consumer_tag'      , 'shortstr'),
+        ('no_local'          , 'bit'),
+        ('no_ack'            , 'bit'),
+        ('exclusive'         , 'bit'),
+        ('nowait'            , 'bit'),
+        ('arguments'         , 'table'),
     ]
 
 class ConsumeOk(WithFields):
@@ -42,7 +60,7 @@ class ConsumeOk(WithFields):
     _class_id  = 60
     _method_id = 21
     _fields    = [
-        (u'consumer_tag'     , u'shortstr'),
+        ('consumer_tag'      , 'shortstr'),
     ]
 
 class Cancel(WithFields):
@@ -51,8 +69,8 @@ class Cancel(WithFields):
     _class_id  = 60
     _method_id = 30
     _fields    = [
-        (u'consumer_tag'     , u'shortstr'),
-        (u'nowait'           , u'bit'),
+        ('consumer_tag'      , 'shortstr'),
+        ('nowait'            , 'bit'),
     ]
 
 class CancelOk(WithFields):
@@ -61,7 +79,7 @@ class CancelOk(WithFields):
     _class_id  = 60
     _method_id = 31
     _fields    = [
-        (u'consumer_tag'     , u'shortstr'),
+        ('consumer_tag'      , 'shortstr'),
     ]
 
 class Publish(WithFields):
@@ -70,11 +88,11 @@ class Publish(WithFields):
     _class_id  = 60
     _method_id = 40
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'exchange'         , u'shortstr'),
-        (u'routing_key'      , u'shortstr'),
-        (u'mandatory'        , u'bit'),
-        (u'immediate'        , u'bit'),
+        ('ticket'            , 'short'),
+        ('exchange'          , 'shortstr'),
+        ('routing_key'       , 'shortstr'),
+        ('mandatory'         , 'bit'),
+        ('immediate'         , 'bit'),
     ]
 
 class Return(WithFields):
@@ -83,10 +101,10 @@ class Return(WithFields):
     _class_id  = 60
     _method_id = 50
     _fields    = [
-        (u'reply_code'       , u'short'),
-        (u'reply_text'       , u'shortstr'),
-        (u'exchange'         , u'shortstr'),
-        (u'routing_key'      , u'shortstr'),
+        ('reply_code'        , 'short'),
+        ('reply_text'        , 'shortstr'),
+        ('exchange'          , 'shortstr'),
+        ('routing_key'       , 'shortstr'),
     ]
 
 class Deliver(WithFields):
@@ -95,11 +113,11 @@ class Deliver(WithFields):
     _class_id  = 60
     _method_id = 60
     _fields    = [
-        (u'consumer_tag'     , u'shortstr'),
-        (u'delivery_tag'     , u'longlong'),
-        (u'redelivered'      , u'bit'),
-        (u'exchange'         , u'shortstr'),
-        (u'routing_key'      , u'shortstr'),
+        ('consumer_tag'      , 'shortstr'),
+        ('delivery_tag'      , 'longlong'),
+        ('redelivered'       , 'bit'),
+        ('exchange'          , 'shortstr'),
+        ('routing_key'       , 'shortstr'),
     ]
 
 class Get(WithFields):
@@ -108,9 +126,9 @@ class Get(WithFields):
     _class_id  = 60
     _method_id = 70
     _fields    = [
-        (u'ticket'           , u'short'),
-        (u'queue'            , u'shortstr'),
-        (u'no_ack'           , u'bit'),
+        ('ticket'            , 'short'),
+        ('queue'             , 'shortstr'),
+        ('no_ack'            , 'bit'),
     ]
 
 class GetOk(WithFields):
@@ -119,11 +137,11 @@ class GetOk(WithFields):
     _class_id  = 60
     _method_id = 71
     _fields    = [
-        (u'delivery_tag'     , u'longlong'),
-        (u'redelivered'      , u'bit'),
-        (u'exchange'         , u'shortstr'),
-        (u'routing_key'      , u'shortstr'),
-        (u'message_count'    , u'long'),
+        ('delivery_tag'      , 'longlong'),
+        ('redelivered'       , 'bit'),
+        ('exchange'          , 'shortstr'),
+        ('routing_key'       , 'shortstr'),
+        ('message_count'     , 'long'),
     ]
 
 class GetEmpty(WithFields):
@@ -132,7 +150,7 @@ class GetEmpty(WithFields):
     _class_id  = 60
     _method_id = 72
     _fields    = [
-        (u'cluster_id'       , u'shortstr'),
+        ('cluster_id'        , 'shortstr'),
     ]
 
 class Ack(WithFields):
@@ -141,8 +159,8 @@ class Ack(WithFields):
     _class_id  = 60
     _method_id = 80
     _fields    = [
-        (u'delivery_tag'     , u'longlong'),
-        (u'multiple'         , u'bit'),
+        ('delivery_tag'      , 'longlong'),
+        ('multiple'          , 'bit'),
     ]
 
 class Reject(WithFields):
@@ -151,8 +169,8 @@ class Reject(WithFields):
     _class_id  = 60
     _method_id = 90
     _fields    = [
-        (u'delivery_tag'     , u'longlong'),
-        (u'requeue'          , u'bit'),
+        ('delivery_tag'      , 'longlong'),
+        ('requeue'           , 'bit'),
     ]
 
 class RecoverAsync(WithFields):
@@ -161,7 +179,7 @@ class RecoverAsync(WithFields):
     _class_id  = 60
     _method_id = 100
     _fields    = [
-        (u'requeue'          , u'bit'),
+        ('requeue'           , 'bit'),
     ]
 
 class Recover(WithFields):
@@ -170,7 +188,7 @@ class Recover(WithFields):
     _class_id  = 60
     _method_id = 110
     _fields    = [
-        (u'requeue'          , u'bit'),
+        ('requeue'           , 'bit'),
     ]
 
 class RecoverOk(WithFields):
