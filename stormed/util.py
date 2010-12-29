@@ -14,11 +14,11 @@ class WithFields(object):
     
     def __init__(self, **kargs):
         fnames = [ fname for fname, ftype in self._fields ]
-        for k,v in kargs.items():
-            if k in fnames:
-                setattr(self, k, v)
-            else:
-                raise AttributeError('%r in not a valid field name' % k)
+        unvalid_kargs = set(kargs.keys()) - set(fnames)
+        if unvalid_kargs:
+            raise AttributeError('unvalid field name/s: %s' % unvalid_kargs)
+        for fn in fnames:
+            setattr(self, fn, kargs.get(fn))
 
 def add_method(klass):
     def decorator(f):
