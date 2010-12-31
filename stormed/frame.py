@@ -75,7 +75,7 @@ class FrameHandler(object):
 
     def __init__(self, connection):
         self.conn = connection
-        self._sync_method_queue = []
+        self._method_queue = []
         self._pending_meth = None
         self._pending_cb = None
 
@@ -95,12 +95,12 @@ class FrameHandler(object):
                 self._flush()
 
     def send_method(self, method, callback=None, message=None):
-        self._sync_method_queue.append( (method, callback, message) )
+        self._method_queue.append( (method, callback, message) )
         self._flush()
 
     def _flush(self):
-        while self._pending_meth is None and self._sync_method_queue:
-            method, callback, msg = self._sync_method_queue.pop(0)
+        while self._pending_meth is None and self._method_queue:
+            method, callback, msg = self._method_queue.pop(0)
             self.write_method(method)
             if msg:
                 self.write_msg(msg)
