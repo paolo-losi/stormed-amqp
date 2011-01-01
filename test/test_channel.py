@@ -61,6 +61,9 @@ class TestChannel(testing.AsyncTestCase):
 
         def on_msg(msg):
             assert msg.body == 'test'
+
+        def on_missing_msg(msg):
+            assert msg is None
             conn.close(self.stop)
 
         def on_connect():
@@ -70,6 +73,7 @@ class TestChannel(testing.AsyncTestCase):
             ch.queue_bind('test_queue', 'test_exchange', 'test')
             ch.publish(test_msg, exchange='test_exchange', routing_key='test')
             ch.get('test_queue', on_msg)
+            ch.get('test_queue', on_missing_msg)
 
         conn.connect(on_connect)
         self.wait()
