@@ -2,14 +2,24 @@ from struct import Struct
 from itertools import izip
 
 from stormed import method
+from stormed.message import ContentHeader, Message
 
 def parse_fields(fields, data):
     vals = []
     offset = 0
+    bit_parser = None
     for f in fields:
-        parser = globals()['parse_%s' % f]
-        val, offset = parser(data, offset)
-        vals.append(val)
+        if f == 'bit':
+            if bit_parser is None:
+                bit_parser = BitParser(data[offset])
+            vals.append(bit_parser.get_bit())
+        else:
+            if bit_parser is not None:
+                bit_parser = None
+                offset += 1
+            parser = globals()['parse_%s' % f]
+            val, offset = parser(data, offset)
+            vals.append(val)
     assert offset == len(data), '%d %d' % (offset, len(data))
     return vals
 
@@ -53,14 +63,28 @@ def dump_method(m):
     header = method_header.pack(m._class_id, m._method_id)
     return '%s%s' % (header, dump(m))
 
-#TODO MOVE TO frame.py
 content_header = Struct('!HHQH')
+def parse_content_header(data):
+    hlen = content_header.size
+    class_id, _, msg_size, prop_flags = content_header.unpack(data[:hlen])
+    assert class_id == 60 # basic class
+    fields = []
+    for offset, fspec in zip(range(15, 0, -1), Message._fields):
+        if prop_flags & (1 << offset):
+            fields.append(fspec)
+    names = [ name for name, typ in fields ]
+    types = [ typ  for name, typ in fields ]
+    prop_vals = parse_fields(types, data[hlen:])
+    properties = dict( (k,v) for k,v in zip(names, prop_vals) )
+    return ContentHeader(msg_size, properties)
+
+#TODO MOVE TO frame.py
 def dump_content_header(msg):
     assert len(msg._fields) <= 15, "prop_flags > 15 not supported"
     prop_flags = 0
     for offset, (fname, ftype) in zip(range(15, 0, -1), msg._fields):
         if getattr(msg, fname) is not None:
-            prop_flags |= 2 ** offset
+            prop_flags |= 1 << offset
     chp = content_header.pack(60, #basic class
                               0,
                               len(msg.encoded_body),
@@ -68,6 +92,18 @@ def dump_content_header(msg):
     return '%s%s' % (chp, dump(msg))
 
 # --- low level parsing/dumping ---
+
+class BitParser(object):
+
+    def __init__(self, octet):
+        self.bit_offset = 0
+        self.octet = ord(octet)
+
+    def get_bit(self):
+        assert self.bit_offset <= 7, "unpacking more that 8 bits is unsupported"
+        bit = self.octet & (1 << self.bit_offset)
+        self.bit_offset += 1
+        return bool(bit)
 
 class BitDumper(object):
 
@@ -104,6 +140,14 @@ def parse_long(data, offset):
 
 def dump_long(i):
     return _long.pack(i)
+
+_longlong = Struct('!Q')
+def parse_longlong(data, offset):
+    val = _longlong.unpack_from(data, offset)[0]
+    return val, offset+8
+
+def dump_longlong(i):
+    return _longlong.pack(i)
 
 longstr_header = Struct('!L')
 def parse_longstr(data, offset):

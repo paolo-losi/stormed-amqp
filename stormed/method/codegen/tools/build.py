@@ -45,6 +45,7 @@ method_template = \
     _class_id  = %(class_id)d
     _method_id = %(method_id)d
     _sync      = %(sync)s
+    _content   = %(content)s
     _fields    = [%(fields)s
     ]
 """
@@ -69,6 +70,7 @@ def gen_methods(specs):
                 class_id    = c['id'],
                 method_id   = m['id'],
                 sync        = m.get('synchronous', False),
+                content     = m.get('content', False),
                 fields      = ''.join(fields),
             ))
             id2method_entries.append('    %-2d: %s,' % (m['id'], klass_name))

@@ -7,6 +7,7 @@ class Select(WithFields):
     _class_id  = 90
     _method_id = 10
     _sync      = True
+    _content   = False
     _fields    = [
     ]
 
@@ -16,6 +17,7 @@ class SelectOk(WithFields):
     _class_id  = 90
     _method_id = 11
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 
@@ -25,6 +27,7 @@ class Commit(WithFields):
     _class_id  = 90
     _method_id = 20
     _sync      = True
+    _content   = False
     _fields    = [
     ]
 
@@ -34,6 +37,7 @@ class CommitOk(WithFields):
     _class_id  = 90
     _method_id = 21
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 
@@ -43,6 +47,7 @@ class Rollback(WithFields):
     _class_id  = 90
     _method_id = 30
     _sync      = True
+    _content   = False
     _fields    = [
     ]
 
@@ -52,6 +57,7 @@ class RollbackOk(WithFields):
     _class_id  = 90
     _method_id = 31
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 

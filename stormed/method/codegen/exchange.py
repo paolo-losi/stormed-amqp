@@ -7,6 +7,7 @@ class Declare(WithFields):
     _class_id  = 40
     _method_id = 10
     _sync      = True
+    _content   = False
     _fields    = [
         ('ticket'            , 'short'),
         ('exchange'          , 'shortstr'),
@@ -25,6 +26,7 @@ class DeclareOk(WithFields):
     _class_id  = 40
     _method_id = 11
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 
@@ -34,6 +36,7 @@ class Delete(WithFields):
     _class_id  = 40
     _method_id = 20
     _sync      = True
+    _content   = False
     _fields    = [
         ('ticket'            , 'short'),
         ('exchange'          , 'shortstr'),
@@ -47,6 +50,7 @@ class DeleteOk(WithFields):
     _class_id  = 40
     _method_id = 21
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 
@@ -56,6 +60,7 @@ class Bind(WithFields):
     _class_id  = 40
     _method_id = 30
     _sync      = True
+    _content   = False
     _fields    = [
         ('ticket'            , 'short'),
         ('destination'       , 'shortstr'),
@@ -71,6 +76,7 @@ class BindOk(WithFields):
     _class_id  = 40
     _method_id = 31
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 
@@ -80,6 +86,7 @@ class Unbind(WithFields):
     _class_id  = 40
     _method_id = 40
     _sync      = True
+    _content   = False
     _fields    = [
         ('ticket'            , 'short'),
         ('destination'       , 'shortstr'),
@@ -95,6 +102,7 @@ class UnbindOk(WithFields):
     _class_id  = 40
     _method_id = 51
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 

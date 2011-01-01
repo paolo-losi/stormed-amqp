@@ -7,6 +7,7 @@ class Start(WithFields):
     _class_id  = 10
     _method_id = 10
     _sync      = True
+    _content   = False
     _fields    = [
         ('version_major'     , 'octet'),
         ('version_minor'     , 'octet'),
@@ -21,6 +22,7 @@ class StartOk(WithFields):
     _class_id  = 10
     _method_id = 11
     _sync      = False
+    _content   = False
     _fields    = [
         ('client_properties' , 'table'),
         ('mechanism'         , 'shortstr'),
@@ -34,6 +36,7 @@ class Secure(WithFields):
     _class_id  = 10
     _method_id = 20
     _sync      = True
+    _content   = False
     _fields    = [
         ('challenge'         , 'longstr'),
     ]
@@ -44,6 +47,7 @@ class SecureOk(WithFields):
     _class_id  = 10
     _method_id = 21
     _sync      = False
+    _content   = False
     _fields    = [
         ('response'          , 'longstr'),
     ]
@@ -54,6 +58,7 @@ class Tune(WithFields):
     _class_id  = 10
     _method_id = 30
     _sync      = True
+    _content   = False
     _fields    = [
         ('channel_max'       , 'short'),
         ('frame_max'         , 'long'),
@@ -66,6 +71,7 @@ class TuneOk(WithFields):
     _class_id  = 10
     _method_id = 31
     _sync      = False
+    _content   = False
     _fields    = [
         ('channel_max'       , 'short'),
         ('frame_max'         , 'long'),
@@ -78,6 +84,7 @@ class Open(WithFields):
     _class_id  = 10
     _method_id = 40
     _sync      = True
+    _content   = False
     _fields    = [
         ('virtual_host'      , 'shortstr'),
         ('capabilities'      , 'shortstr'),
@@ -90,6 +97,7 @@ class OpenOk(WithFields):
     _class_id  = 10
     _method_id = 41
     _sync      = False
+    _content   = False
     _fields    = [
         ('known_hosts'       , 'shortstr'),
     ]
@@ -100,6 +108,7 @@ class Close(WithFields):
     _class_id  = 10
     _method_id = 50
     _sync      = True
+    _content   = False
     _fields    = [
         ('reply_code'        , 'short'),
         ('reply_text'        , 'shortstr'),
@@ -113,6 +122,7 @@ class CloseOk(WithFields):
     _class_id  = 10
     _method_id = 51
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 

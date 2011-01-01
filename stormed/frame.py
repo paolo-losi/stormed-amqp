@@ -1,6 +1,8 @@
 import struct
 
-from stormed.serialization import parse_method, dump_method, dump_content_header
+from stormed.message import MessageBuilder
+from stormed.serialization import parse_method, dump_method, \
+                                  parse_content_header, dump_content_header
 
 frame_header = struct.Struct('!cHL')
 
@@ -43,9 +45,15 @@ class Frame(object):
         if self.frame_type == '\x01':
             self.payload = parse_method(payload)
             self.frame_type = 'method'
-        else:
+        elif self.frame_type == '\x02':
+            self.payload = parse_content_header(payload)
+            self.frame_type = 'content_header'
+        elif self.frame_type == '\x03':
             self.payload = payload
-            self.frame_type = frame_type
+            self.frame_type = 'content_body'
+        else:
+            #FIXME logging instead of exception
+            raise ValueError('unsupported frame type')
 
     def __repr__(self):
         return '<Frame(type=%r, channel=%d, size=%d)>' % (self.frame_type,
@@ -78,27 +86,55 @@ class FrameHandler(object):
         self._method_queue = []
         self._pending_meth = None
         self._pending_cb = None
+        self._msg_builder = None
 
     def handle_frame(self, frame):
-        method = frame.payload
-        if hasattr(method, 'handle'):
-            method.handle(self)
-        else:
-            #TODO better error reporting/handling
-            print "ERROR: %r not handled" % method._name
-        if self._pending_meth:
-            if method._name.startswith(self._pending_meth._name):
+        handler = getattr(self, 'handle_'+frame.frame_type)
+        handler(frame.payload)
+
+    def _handle_reply(self, method):
+        self._flush()
+
+    def handle_method(self, method):
+        self._msg_builder = None
+        pending_meth = self._pending_meth
+        if pending_meth and method._name.startswith(pending_meth._name):
+            if not method._content:
+                if hasattr(method, 'handle'):
+                    method.handle(self)
                 if self._pending_cb:
-                    self._pending_cb()
-                self._pending_cb = None
-                self._pending_meth = None
+                    kargs = dict( (f, getattr(method, f))
+                                  for f, _ in method._fields )
+                    self._pending_cb(**kargs)
                 self._flush()
+            else:
+                self._msg_builder = MessageBuilder(content_method=method)
+        else:
+            if hasattr(method, 'handle'):
+                method.handle(self)
+            else:
+                pass # FIXME WARNING
+
+    def handle_content_header(self, ch):
+        self._msg_builder.add_content_header(ch)
+
+    def handle_content_body(self, cb):
+        # FIXME better error checking
+        self._msg_builder.add_content_body(cb)
+        if self._msg_builder.msg_complete:
+            msg = self._msg_builder.get_msg()
+            if self._pending_cb:
+                self._pending_cb(msg)
+            self._flush()
 
     def send_method(self, method, callback=None, message=None):
         self._method_queue.append( (method, callback, message) )
-        self._flush()
+        if not self._pending_meth:
+            self._flush()
 
     def _flush(self):
+        self._pending_cb = None
+        self._pending_meth = None
         while self._pending_meth is None and self._method_queue:
             method, callback, msg = self._method_queue.pop(0)
             self.write_method(method)

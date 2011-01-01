@@ -25,6 +25,7 @@ class Qos(WithFields):
     _class_id  = 60
     _method_id = 10
     _sync      = True
+    _content   = False
     _fields    = [
         ('prefetch_size'     , 'long'),
         ('prefetch_count'    , 'short'),
@@ -37,6 +38,7 @@ class QosOk(WithFields):
     _class_id  = 60
     _method_id = 11
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 
@@ -46,6 +48,7 @@ class Consume(WithFields):
     _class_id  = 60
     _method_id = 20
     _sync      = True
+    _content   = False
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -63,6 +66,7 @@ class ConsumeOk(WithFields):
     _class_id  = 60
     _method_id = 21
     _sync      = False
+    _content   = False
     _fields    = [
         ('consumer_tag'      , 'shortstr'),
     ]
@@ -73,6 +77,7 @@ class Cancel(WithFields):
     _class_id  = 60
     _method_id = 30
     _sync      = True
+    _content   = False
     _fields    = [
         ('consumer_tag'      , 'shortstr'),
         ('nowait'            , 'bit'),
@@ -84,6 +89,7 @@ class CancelOk(WithFields):
     _class_id  = 60
     _method_id = 31
     _sync      = False
+    _content   = False
     _fields    = [
         ('consumer_tag'      , 'shortstr'),
     ]
@@ -94,6 +100,7 @@ class Publish(WithFields):
     _class_id  = 60
     _method_id = 40
     _sync      = False
+    _content   = True
     _fields    = [
         ('ticket'            , 'short'),
         ('exchange'          , 'shortstr'),
@@ -108,6 +115,7 @@ class Return(WithFields):
     _class_id  = 60
     _method_id = 50
     _sync      = False
+    _content   = True
     _fields    = [
         ('reply_code'        , 'short'),
         ('reply_text'        , 'shortstr'),
@@ -121,6 +129,7 @@ class Deliver(WithFields):
     _class_id  = 60
     _method_id = 60
     _sync      = False
+    _content   = True
     _fields    = [
         ('consumer_tag'      , 'shortstr'),
         ('delivery_tag'      , 'longlong'),
@@ -135,6 +144,7 @@ class Get(WithFields):
     _class_id  = 60
     _method_id = 70
     _sync      = True
+    _content   = False
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -147,6 +157,7 @@ class GetOk(WithFields):
     _class_id  = 60
     _method_id = 71
     _sync      = False
+    _content   = True
     _fields    = [
         ('delivery_tag'      , 'longlong'),
         ('redelivered'       , 'bit'),
@@ -161,6 +172,7 @@ class GetEmpty(WithFields):
     _class_id  = 60
     _method_id = 72
     _sync      = False
+    _content   = False
     _fields    = [
         ('cluster_id'        , 'shortstr'),
     ]
@@ -171,6 +183,7 @@ class Ack(WithFields):
     _class_id  = 60
     _method_id = 80
     _sync      = False
+    _content   = False
     _fields    = [
         ('delivery_tag'      , 'longlong'),
         ('multiple'          , 'bit'),
@@ -182,6 +195,7 @@ class Reject(WithFields):
     _class_id  = 60
     _method_id = 90
     _sync      = False
+    _content   = False
     _fields    = [
         ('delivery_tag'      , 'longlong'),
         ('requeue'           , 'bit'),
@@ -193,6 +207,7 @@ class RecoverAsync(WithFields):
     _class_id  = 60
     _method_id = 100
     _sync      = False
+    _content   = False
     _fields    = [
         ('requeue'           , 'bit'),
     ]
@@ -203,6 +218,7 @@ class Recover(WithFields):
     _class_id  = 60
     _method_id = 110
     _sync      = True
+    _content   = False
     _fields    = [
         ('requeue'           , 'bit'),
     ]
@@ -213,6 +229,7 @@ class RecoverOk(WithFields):
     _class_id  = 60
     _method_id = 111
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 

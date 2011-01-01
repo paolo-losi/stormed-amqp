@@ -7,6 +7,7 @@ class Declare(WithFields):
     _class_id  = 50
     _method_id = 10
     _sync      = True
+    _content   = False
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -24,6 +25,7 @@ class DeclareOk(WithFields):
     _class_id  = 50
     _method_id = 11
     _sync      = False
+    _content   = False
     _fields    = [
         ('queue'             , 'shortstr'),
         ('message_count'     , 'long'),
@@ -36,6 +38,7 @@ class Bind(WithFields):
     _class_id  = 50
     _method_id = 20
     _sync      = True
+    _content   = False
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -51,6 +54,7 @@ class BindOk(WithFields):
     _class_id  = 50
     _method_id = 21
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 
@@ -60,6 +64,7 @@ class Purge(WithFields):
     _class_id  = 50
     _method_id = 30
     _sync      = True
+    _content   = False
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -72,6 +77,7 @@ class PurgeOk(WithFields):
     _class_id  = 50
     _method_id = 31
     _sync      = False
+    _content   = False
     _fields    = [
         ('message_count'     , 'long'),
     ]
@@ -82,6 +88,7 @@ class Delete(WithFields):
     _class_id  = 50
     _method_id = 40
     _sync      = True
+    _content   = False
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -96,6 +103,7 @@ class DeleteOk(WithFields):
     _class_id  = 50
     _method_id = 41
     _sync      = False
+    _content   = False
     _fields    = [
         ('message_count'     , 'long'),
     ]
@@ -106,6 +114,7 @@ class Unbind(WithFields):
     _class_id  = 50
     _method_id = 50
     _sync      = True
+    _content   = False
     _fields    = [
         ('ticket'            , 'short'),
         ('queue'             , 'shortstr'),
@@ -120,6 +129,7 @@ class UnbindOk(WithFields):
     _class_id  = 50
     _method_id = 51
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 

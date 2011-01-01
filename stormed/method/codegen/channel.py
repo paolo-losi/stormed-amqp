@@ -7,6 +7,7 @@ class Open(WithFields):
     _class_id  = 20
     _method_id = 10
     _sync      = True
+    _content   = False
     _fields    = [
         ('out_of_band'       , 'shortstr'),
     ]
@@ -17,6 +18,7 @@ class OpenOk(WithFields):
     _class_id  = 20
     _method_id = 11
     _sync      = False
+    _content   = False
     _fields    = [
         ('channel_id'        , 'longstr'),
     ]
@@ -27,6 +29,7 @@ class Flow(WithFields):
     _class_id  = 20
     _method_id = 20
     _sync      = True
+    _content   = False
     _fields    = [
         ('active'            , 'bit'),
     ]
@@ -37,6 +40,7 @@ class FlowOk(WithFields):
     _class_id  = 20
     _method_id = 21
     _sync      = False
+    _content   = False
     _fields    = [
         ('active'            , 'bit'),
     ]
@@ -47,6 +51,7 @@ class Close(WithFields):
     _class_id  = 20
     _method_id = 40
     _sync      = True
+    _content   = False
     _fields    = [
         ('reply_code'        , 'short'),
         ('reply_text'        , 'shortstr'),
@@ -60,6 +65,7 @@ class CloseOk(WithFields):
     _class_id  = 20
     _method_id = 41
     _sync      = False
+    _content   = False
     _fields    = [
     ]
 
