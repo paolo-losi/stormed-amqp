@@ -88,14 +88,11 @@ class FrameHandler(object):
         self._pending_cb = None
         self._msg_builder = None
 
-    def handle_frame(self, frame):
-        handler = getattr(self, 'handle_'+frame.frame_type)
-        handler(frame.payload)
+    def process_frame(self, frame):
+        processor = getattr(self, 'process_'+frame.frame_type)
+        processor(frame.payload)
 
-    def _handle_reply(self, method):
-        self._flush()
-
-    def handle_method(self, method):
+    def process_method(self, method):
         self._msg_builder = None
         pending_meth = self._pending_meth
         if pending_meth and method._name.startswith(pending_meth._name):
@@ -115,10 +112,10 @@ class FrameHandler(object):
             else:
                 pass # FIXME WARNING
 
-    def handle_content_header(self, ch):
+    def process_content_header(self, ch):
         self._msg_builder.add_content_header(ch)
 
-    def handle_content_body(self, cb):
+    def process_content_body(self, cb):
         # FIXME better error checking
         self._msg_builder.add_content_body(cb)
         if self._msg_builder.msg_complete:

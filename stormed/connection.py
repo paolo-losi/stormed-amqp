@@ -52,6 +52,6 @@ class Connection(FrameHandler):
         FrameReader(self.stream, self._frame_loop)
 
     def _frame_loop(self, frame):
-        self.channels[frame.channel].handle_frame(frame)
+        self.channels[frame.channel].process_frame(frame)
         if self.stream:
             FrameReader(self.stream, self._frame_loop)
