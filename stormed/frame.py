@@ -88,29 +88,28 @@ class FrameHandler(object):
         self._pending_cb = None
         self._msg_builder = None
 
+    @property
+    def message(self):
+        return self._msg_builder.get_msg()
+
+    @property
+    def callback(self):
+        return self._pending_cb
+
+    def invoke_callback(self, *args, **kargs):
+        self._pending_cb(*args, **kargs)
+        self._pending_cb = None
+
     def process_frame(self, frame):
         processor = getattr(self, 'process_'+frame.frame_type)
         processor(frame.payload)
 
     def process_method(self, method):
-        self._msg_builder = None
-        pending_meth = self._pending_meth
-        if pending_meth and method._name.startswith(pending_meth._name):
-            if not method._content:
-                if hasattr(method, 'handle'):
-                    method.handle(self)
-                if self._pending_cb:
-                    kargs = dict( (f, getattr(method, f))
-                                  for f, _ in method._fields )
-                    self._pending_cb(**kargs)
-                self._flush()
-            else:
-                self._msg_builder = MessageBuilder(content_method=method)
+        if method._content:
+            self._msg_builder = MessageBuilder(content_method=method)
         else:
-            if hasattr(method, 'handle'):
-                method.handle(self)
-            else:
-                pass # FIXME WARNING
+            self._msg_builder = None
+            self.handle_method(method)
 
     def process_content_header(self, ch):
         self._msg_builder.add_content_header(ch)
@@ -119,9 +118,15 @@ class FrameHandler(object):
         # FIXME better error checking
         self._msg_builder.add_content_body(cb)
         if self._msg_builder.msg_complete:
-            msg = self._msg_builder.get_msg()
+            self.handle_method(self._msg_builder.content_method)
+
+    def handle_method(self, method):
+        if hasattr(method, 'handle'):
+            method.handle(self)
+        pending_meth = self._pending_meth
+        if pending_meth and method._name.startswith(pending_meth._name):
             if self._pending_cb:
-                self._pending_cb(msg)
+                self.invoke_callback()
             self._flush()
 
     def send_method(self, method, callback=None, message=None):
