@@ -12,7 +12,23 @@ class Message(WithFields):
             self.body = body.encode(encoding)
         else:
             properties.setdefault('content_type', 'application/octet-stream')
+        self.rx_data = None
+        self.rx_channel = None
         super(Message, self).__init__(**properties)
+
+    def ack(self, multiple=False):
+        if self.rx_channel is None:
+            raise ValueError('cannot ack an unreceived message')
+        method = basic.Ack(delivery_tag=self.rx_data.delivery_tag,
+                           multiple=multiple)
+        self.rx_channel.send_method(method)
+
+    def reject(self, requeue=True):
+        if self.rx_channel is None:
+            raise ValueError('cannot reject an unreceived message')
+        method = basic.Reject(delivery_tag=self.rx_data.delivery_tag,
+                              requeue=requeue)
+        self.rx_channel.send_method(method)
 
 
 class ContentHeader(object):
@@ -44,4 +60,6 @@ class MessageBuilder(object):
     def get_msg(self):
         assert self.msg_complete
         body = ''.join(self.chunks)
-        return Message(body, **self.content_header.properties)
+        msg = Message(body, **self.content_header.properties)
+        msg.rx_data = self.content_method
+        return msg

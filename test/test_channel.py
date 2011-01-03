@@ -57,23 +57,27 @@ class TestChannel(testing.AsyncTestCase):
 
     def test_get(self):
         conn = Connection('localhost', io_loop=self.io_loop)
+        ch = None
         test_msg = Message('test')
 
         def on_msg(msg):
+            global ch
             assert msg.body == 'test'
+            msg.ack()
+            ch.get('test_queue', on_missing_msg)
 
         def on_missing_msg(msg):
             assert msg is None
             conn.close(self.stop)
 
         def on_connect():
+            global ch
             ch = conn.channel()
             ch.exchange_declare('test_exchange', durable=False)
             ch.queue_declare('test_queue', durable=False)
             ch.queue_bind('test_queue', 'test_exchange', 'test')
             ch.publish(test_msg, exchange='test_exchange', routing_key='test')
             ch.get('test_queue', on_msg)
-            ch.get('test_queue', on_missing_msg)
 
         conn.connect(on_connect)
         self.wait()
