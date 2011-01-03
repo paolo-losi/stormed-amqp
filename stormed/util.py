@@ -11,7 +11,7 @@ class Enum(object):
 class WithFields(object):
 
     _fields = []
-    
+
     def __init__(self, **kargs):
         fnames = [ fname for fname, ftype in self._fields ]
         unvalid_kargs = set(kargs.keys()) - set(fnames)

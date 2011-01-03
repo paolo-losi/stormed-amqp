@@ -58,7 +58,7 @@ class Frame(object):
     def __repr__(self):
         return '<Frame(type=%r, channel=%d, size=%d)>' % (self.frame_type,
                                                           self.channel,
-                                                          self.size)        
+                                                          self.size)
 
 def from_method(method, channel=0):
     payload = dump_method(method)
@@ -73,8 +73,8 @@ def content_header_from_msg(msg, channel):
 def body_frames_from_msg(msg, channel):
     max_size = 2**16 #FIXME should be set by connection negotiation
     frames = []
-    for offset in range(0, len(msg.encoded_body), max_size):
-        payload = msg.encoded_body[offset:offset + max_size]
+    for offset in range(0, len(msg.body), max_size):
+        payload = msg.body[offset:offset + max_size]
         header = frame_header.pack('\x03', channel, len(payload))
         frames.append('%s%s%s' % (header, payload, '\xCE'))
     return frames

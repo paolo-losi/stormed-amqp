@@ -63,7 +63,7 @@ class Channel(FrameHandler):
                                      routing_key = routing_key,
                                      nowait      = False,
                                      arguments   = dict()), callback)
-                                            
+
     def publish(self, message, exchange, routing_key='', immediate=False,
                       mandatory=False):
         self.send_method(basic.Publish(ticket = 0,

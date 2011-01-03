@@ -87,7 +87,7 @@ def dump_content_header(msg):
             prop_flags |= 1 << offset
     chp = content_header.pack(60, #basic class
                               0,
-                              len(msg.encoded_body),
+                              len(msg.body),
                               prop_flags)
     return '%s%s' % (chp, dump(msg))
 

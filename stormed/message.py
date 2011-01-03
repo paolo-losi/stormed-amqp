@@ -7,9 +7,11 @@ class Message(WithFields):
 
     def __init__(self, body, **properties):
         self.body = body
-        #FIXME don't assume unicode body
-        self.encoded_body = body.encode('utf8')
-        properties.setdefault('content_type', 'application/octet-stream')
+        if isinstance(body, unicode):
+            encoding = properties.setdefault('content_encoding', 'utf8')
+            self.body = body.encode(encoding)
+        else:
+            properties.setdefault('content_type', 'application/octet-stream')
         super(Message, self).__init__(**properties)
 
 
@@ -19,7 +21,7 @@ class ContentHeader(object):
         self.size = size
         self.properties = properties
 
-        
+
 class MessageBuilder(object):
 
     def __init__(self, content_method):
