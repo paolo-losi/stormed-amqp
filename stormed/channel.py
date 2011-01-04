@@ -1,7 +1,7 @@
 from stormed.util import Enum
-from stormed.method.channel import Open, Close, status
+from stormed.method.channel import Open, Close
 from stormed.method import exchange as _exchange, basic, queue as _queue
-from stormed.frame import FrameHandler
+from stormed.frame import FrameHandler, status
 
 class Channel(FrameHandler):
 

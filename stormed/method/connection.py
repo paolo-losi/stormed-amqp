@@ -1,8 +1,8 @@
-from stormed.util import add_method, Enum
+from stormed.util import add_method
 from stormed.serialization import table2str
+from stormed.heartbeat import HeartbeatMonitor
+from stormed.frame import status
 from stormed.method.codegen.connection import *
-
-status = Enum('HANDSHAKE', 'CONNECTED', 'CLOSED', 'CLOSING')
 
 @add_method(Start)
 def handle(self, conn):
@@ -23,7 +23,7 @@ def handle(self, conn):
 def handle(self, conn):
     tune_ok = TuneOk(frame_max   = self.frame_max,
                      channel_max = self.channel_max,
-                     heartbeat   = self.heartbeat)
+                     heartbeat   = conn.heartbeat)
     conn.write_method(tune_ok)
     _open = Open(virtual_host = conn.vhost,
                  capabilities = '',
@@ -32,11 +32,11 @@ def handle(self, conn):
 
 @add_method(OpenOk)
 def handle(self, conn):
-    conn.status = status.CONNECTED
-    conn.on_connect_callback()
+    conn.status = status.OPENED
+    if conn.heartbeat:
+        HeartbeatMonitor(conn).start()
+    conn.on_connect()
 
 @add_method(CloseOk)
 def handle(self, conn):
-    conn.stream.close()
-    conn.stream = None
-    conn.status = status.CLOSED
+    conn.close_stream()

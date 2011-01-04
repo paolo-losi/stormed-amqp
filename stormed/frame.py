@@ -1,8 +1,11 @@
 import struct
 
+from stormed.util import Enum
 from stormed.message import MessageBuilder
 from stormed.serialization import parse_method, dump_method, \
                                   parse_content_header, dump_content_header
+
+status = Enum('OPENING', 'OPENED', 'CLOSED', 'CLOSING')
 
 frame_header = struct.Struct('!cHL')
 
@@ -51,6 +54,8 @@ class Frame(object):
         elif self.frame_type == '\x03':
             self.payload = payload
             self.frame_type = 'content_body'
+        elif self.frame_type == '\x08':
+            self.frame_type = 'heartbeat'
         else:
             #FIXME logging instead of exception
             raise ValueError('unsupported frame type')
@@ -78,6 +83,8 @@ def body_frames_from_msg(msg, channel):
         header = frame_header.pack('\x03', channel, len(payload))
         frames.append('%s%s%s' % (header, payload, '\xCE'))
     return frames
+
+HEARTBEAT = '\x08\x00\x00\x00\x00\x00\x00\xCE'
 
 class FrameHandler(object):
 
@@ -119,6 +126,9 @@ class FrameHandler(object):
         self._msg_builder.add_content_body(cb)
         if self._msg_builder.msg_complete:
             self.handle_method(self._msg_builder.content_method)
+
+    def process_heartbeat(self, hb):
+        self.conn.stream.write(HEARTBEAT)
 
     def handle_method(self, method):
         if hasattr(method, 'handle'):

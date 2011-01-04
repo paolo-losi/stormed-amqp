@@ -1,39 +1,44 @@
+import time
 import socket
 from tornado.iostream import IOStream
 from tornado.ioloop import IOLoop
 from tornado import stack_context
 
-from stormed.frame import FrameReader, FrameHandler
+from stormed.frame import FrameReader, FrameHandler, status
 from stormed import frame
 from stormed.serialization import parse_method, table2str
 from stormed.channel import Channel
-from stormed.method.connection import status, Close
+from stormed.method.connection import Close
 
 
 class Connection(FrameHandler):
 
     def __init__(self, host, username='guest', password='guest', vhost='/',
-                       port=5672, io_loop=None):
+                       port=5672, heartbeat=0, io_loop=None):
         self.host = host
         self.port = port
         self.username = username
         self.password = password
         self.vhost = vhost
+        self.heartbeat = heartbeat
+        self.last_received_frame = None
         self.io_loop = io_loop or IOLoop.instance()
         self.stream = None
         self.status = status.CLOSED
         self.channels = [self]
         self.channel_id = 0
-        self.on_connect_callback = None
+        self.on_connect = None
+        self.on_disconnect = None
         super(Connection, self).__init__(connection=self)
 
     def connect(self, callback):
         if self.status is not status.CLOSED:
             raise Exception('Connection status is %s' % self.status)
-        self.status = status.HANDSHAKE
+        self.status = status.OPENING
         self.stream = IOStream(socket.socket(), io_loop=self.io_loop)
         self.stream.connect((self.host, self.port), self._handshake)
-        self.on_connect_callback = callback
+        self.stream.set_close_callback(self.on_closed_stream)
+        self.on_connect = callback
 
     def close(self, callback=None):
         #FIXME close all channel to flush _sync_method_queue
@@ -52,6 +57,18 @@ class Connection(FrameHandler):
         FrameReader(self.stream, self._frame_loop)
 
     def _frame_loop(self, frame):
+        if self.heartbeat:
+            self.last_received_frame = time.time()
         self.channels[frame.channel].process_frame(frame)
         if self.stream:
             FrameReader(self.stream, self._frame_loop)
+
+    def close_stream(self):
+        self.status = status.CLOSED
+        self.stream.close()
+        self.stream = None
+
+    def on_closed_stream(self):
+        if self.status != status.CLOSED:
+            if self.on_disconnect:
+                self.on_disconnect()
