@@ -41,7 +41,8 @@ class TestChannel(testing.AsyncTestCase):
         def clean_up():
             conn.close(self.stop)
 
-        def on_creation(message_count, consumer_count):
+        def on_creation(queue, message_count, consumer_count):
+            assert queue == 'test_queue'
             assert message_count == 0
             assert consumer_count == 0
 
