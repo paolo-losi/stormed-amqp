@@ -3,6 +3,7 @@ import unittest
 from tornado import testing
 
 from stormed.connection import Connection
+from stormed.channel import Consumer
 from stormed.message import Message
 
 class TestChannel(testing.AsyncTestCase):
@@ -79,6 +80,38 @@ class TestChannel(testing.AsyncTestCase):
             ch.queue_bind('test_queue', 'test_exchange', 'test')
             ch.publish(test_msg, exchange='test_exchange', routing_key='test')
             ch.get('test_queue', on_msg)
+
+        conn.connect(on_connect)
+        self.wait()
+
+    def test_consume(self):
+        global count
+        conn = Connection('localhost', io_loop=self.io_loop)
+        test_msg = Message('test')
+        count = 0
+
+        def clean_up():
+            assert not ch.consumers
+            conn.close(self.stop)
+
+        def consume_callback(msg):
+            global ch, count, consumer
+            count += 1
+            assert msg.body == 'test'
+            if count == 5:
+                consumer.cancel(clean_up)
+
+        def on_connect():
+            global ch, consumer
+            ch = conn.channel()
+            ch.exchange_declare('test_exchange', durable=False)
+            ch.queue_declare('test_queue', durable=False)
+            ch.queue_bind('test_queue', 'test_exchange', 'test')
+            for _ in xrange(5):
+                ch.publish(test_msg, exchange='test_exchange',
+                                     routing_key='test')
+            consumer = Consumer(consume_callback)
+            ch.consume('test_queue', consumer, no_ack=True)
 
         conn.connect(on_connect)
         self.wait()

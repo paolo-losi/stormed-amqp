@@ -7,6 +7,7 @@ class Channel(FrameHandler):
 
     def __init__(self, channel_id, conn):
         self.channel_id = channel_id
+        self.consumers = {}
         self.status = status.CLOSED #FIXME is it needed?
         super(Channel, self).__init__(conn)
 
@@ -75,3 +76,32 @@ class Channel(FrameHandler):
     def get(self, queue, callback, no_ack=False):
         _get = basic.Get(ticket=0, queue=queue, no_ack=no_ack)
         self.send_method(_get, callback)
+
+    def consume(self, queue, consumer, no_local=False, no_ack=False,
+                      exclusive=False):
+        if not isinstance(consumer, Consumer):
+            consumer = Consumer(consumer)
+        def set_consumer(consumer_tag):
+            consumer.tag = consumer_tag
+            consumer.channel = self
+            self.consumers[consumer_tag] = consumer
+        _consume = basic.Consume(ticket       = 0,
+                                 queue        = queue,
+                                 consumer_tag = '',
+                                 no_local     = no_local,
+                                 no_ack       = no_ack,
+                                 exclusive    = exclusive,
+                                 nowait       = False,
+                                 arguments    = dict())
+        self.send_method(_consume, set_consumer)
+
+class Consumer(object):
+
+    def __init__(self, callback):
+        self.tag = None
+        self.channel = None
+        self.callback = callback
+
+    def cancel(self, callback):
+        _cancel = basic.Cancel(consumer_tag=self.tag, nowait=False)
+        self.channel.send_method(_cancel, callback)
