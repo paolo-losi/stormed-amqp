@@ -26,23 +26,17 @@ class TestChannel(testing.AsyncTestCase):
         conn = Connection('localhost', io_loop=self.io_loop)
         test_msg = Message('test')
 
-        def clean_up():
-            conn.close(self.stop)
-
         def on_connect():
             ch = conn.channel()
             ch.exchange_declare('test_exchange', durable=False)
             ch.publish(test_msg, exchange='test_exchange', routing_key='test')
-            ch.close(clean_up)
+            conn.close(self.stop)
 
         conn.connect(on_connect)
         self.wait()
 
     def test_queue(self):
         conn = Connection('localhost', io_loop=self.io_loop)
-
-        def clean_up():
-            conn.close(self.stop)
 
         def on_creation(queue, message_count, consumer_count):
             assert queue == 'test_queue'
@@ -54,7 +48,7 @@ class TestChannel(testing.AsyncTestCase):
             ch.queue_delete('test_queue')
             ch.queue_declare('test_queue', durable=False,
                              callback=on_creation)
-            ch.close(clean_up)
+            conn.close(self.stop)
 
         conn.connect(on_connect)
         self.wait()

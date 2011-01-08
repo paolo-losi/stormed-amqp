@@ -1,5 +1,3 @@
-* exception handling / stack context
-    handling of server sent channel.close and connection.close
 * examples
 * review of all methods
 * logging

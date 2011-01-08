@@ -30,6 +30,7 @@ class Connection(FrameHandler):
         self.on_connect = None
         self.on_disconnect = None
         self.on_error = None
+        self._close_callback = None
         super(Connection, self).__init__(connection=self)
 
     def connect(self, callback):
@@ -42,16 +43,30 @@ class Connection(FrameHandler):
         self.on_connect = callback
 
     def close(self, callback=None):
-        #FIXME close all channel to flush _sync_method_queue
-        _close = Close(reply_code=0, reply_text='', class_id=0, method_id=0)
-        self.send_method(_close, callback)
-        self.status = status.CLOSING
+        if self.status != status.CLOSING:
+            self._close_callback = callback
+            self.status = status.CLOSING
+        channels = [ch for ch in self.channels if ch is not self]
+        opened_chs  = [ch for ch in channels if ch.status in (status.OPENED,
+                                                              status.OPENING)]
+        closing_chs = [ch for ch in channels if ch.status == status.CLOSING]
+        if opened_chs:
+            for ch in opened_chs:
+                ch.close(self.close)
+        elif closing_chs:
+            pass # let's wait
+        else:
+            m = Close(reply_code=0, reply_text='', class_id=0, method_id=0)
+            self.send_method(m, self._close_callback)
 
     def channel(self, callback=None):
-        ch = Channel(channel_id=len(self.channels), conn=self)
-        self.channels.append(ch)
-        ch.open(callback)
-        return ch
+        if self.status == status.OPENED:
+            ch = Channel(channel_id=len(self.channels), conn=self)
+            self.channels.append(ch)
+            ch.open(callback)
+            return ch
+        else:
+            raise ValueError('connection is not opened')
 
     def _handshake(self):
         self.stream.write('AMQP\x00\x00\x09\x01')
