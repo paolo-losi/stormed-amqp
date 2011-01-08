@@ -5,6 +5,8 @@ from tornado import testing
 from stormed.connection import Connection
 from stormed.channel import Consumer
 from stormed.message import Message
+from stormed.method import queue
+from stormed.frame import status
 
 class TestChannel(testing.AsyncTestCase):
 
@@ -116,6 +118,23 @@ class TestChannel(testing.AsyncTestCase):
         conn.connect(on_connect)
         self.wait()
 
+    def test_channel_error(self):
+        
+        conn = Connection('localhost', io_loop=self.io_loop)
+
+        def on_connect():
+            self.ch = conn.channel()
+            self.ch.on_error = on_error
+            self.ch.queue_bind('foo', 'bar')
+
+        def on_error(ch_error):
+            assert ch_error.method == queue.Bind, ch_error.method
+            assert ch_error.reply_code == 'NOT_FOUND'
+            assert self.ch.status == status.CLOSED
+            conn.close(self.stop)
+
+        conn.connect(on_connect)
+        self.wait()
 
 if __name__ == '__main__':
     unittest.main()

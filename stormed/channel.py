@@ -9,6 +9,7 @@ class Channel(FrameHandler):
         self.channel_id = channel_id
         self.consumers = {}
         self.status = status.CLOSED #FIXME is it needed?
+        self.on_error = None
         super(Channel, self).__init__(conn)
 
     def open(self, callback=None):

@@ -169,3 +169,10 @@ class FrameHandler(object):
         frames.extend(body_frames_from_msg(msg, self.channel_id))
         for f in frames:
             self.conn.stream.write(f)
+
+    def hard_reset(self):
+        self.status = status.CLOSED
+        self._method_queue = []
+        self._pending_meth = None
+        self._pending_cb = None
+        self._msg_builder = None

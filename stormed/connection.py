@@ -29,6 +29,7 @@ class Connection(FrameHandler):
         self.channel_id = 0
         self.on_connect = None
         self.on_disconnect = None
+        self.on_error = None
         super(Connection, self).__init__(connection=self)
 
     def connect(self, callback):

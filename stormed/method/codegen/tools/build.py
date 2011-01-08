@@ -12,9 +12,17 @@ def gen_constant(specs):
     constants_filename = os.path.join(codegen_dir, '..', 'constant.py')
     fout = open(constants_filename, 'w')
     for c in specs['constants']:
+        c['name'] = fix_name(c['name'])
         template = '%(name)-20s = %(value)r %(comment)s\n'
         c.update(comment = '# %(class)s' % c if 'class' in c else '')
         fout.write(template % c)
+    fout.write('\nid2constant = {\n')
+    for c in specs['constants']:
+        c['name'] = fix_name(c['name'])
+        template = '    %(value)4r: "%(name)s",\n'
+        fout.write(template % c)
+    fout.write('}\n')
+        
 
 properties_template = "properties = [\n%s\n]\n\n"
 

@@ -1,6 +1,9 @@
-* flow control
 * exception handling / stack context
-* logging
-* review of all methods
+    handling of server sent channel.close and connection.close
 * examples
+* review of all methods
+* logging
 * README
+    * document method queueing
+* improve Connection.channels handling
+* fair queueing of outgoing frame (one frame round per channel?)

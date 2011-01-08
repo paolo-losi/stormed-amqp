@@ -20,10 +20,8 @@ class HeartbeatMonitor(object):
     def _check(self):
         if self.conn.status != status.CLOSED:
             last_received = self.conn.last_received_frame
-            print "CHECKING", self.when, last_received
             if not last_received or (self.when - last_received) > self.timeout:
                 self.conn.close_stream()
-                print "DISCONNECTING", self.conn.on_disconnect
                 if self.conn.on_disconnect:
                     self.conn.on_disconnect()
             else:

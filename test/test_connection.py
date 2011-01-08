@@ -4,6 +4,7 @@ import unittest
 from tornado import testing
 
 from stormed.connection import Connection, status
+from stormed.method.connection import Tune
 from stormed.heartbeat import HeartbeatMonitor
 
 class TestConnectionHandshake(testing.AsyncTestCase):
@@ -45,6 +46,25 @@ class TestConnectionHandshake(testing.AsyncTestCase):
         conn.process_heartbeat = lambda hb: None
         conn.on_disconnect = self.stop
         conn.connect(lambda: None)
+        self.wait()
+
+    def test_conn_error(self):
+        conn = Connection('localhost', io_loop=self.io_loop)
+
+        def send_wrong_method():
+            tune = Tune(frame_max   = 0,
+                        channel_max = 0,
+                        heartbeat   = 0)
+            conn.send_method(tune, callback=done)
+
+        def done(conn_error):
+            assert conn_error.method == Tune, repr(conn_error.method)
+            assert conn_error.reply_code == 'CHANNEL_ERROR'
+            assert conn.status == status.CLOSED
+            self.stop()
+
+        conn.on_error = done
+        conn.connect(send_wrong_method)
         self.wait()
         
 
