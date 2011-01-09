@@ -94,7 +94,7 @@ class TestChannel(testing.AsyncTestCase):
             global ch, count, consumer
             count += 1
             assert msg.body == 'test'
-            if count == 5:
+            if count == 50:
                 consumer.cancel(clean_up)
 
         def on_connect():
@@ -103,7 +103,7 @@ class TestChannel(testing.AsyncTestCase):
             ch.exchange_declare('test_exchange', durable=False)
             ch.queue_declare('test_queue', durable=False)
             ch.queue_bind('test_queue', 'test_exchange', 'test')
-            for _ in xrange(5):
+            for _ in xrange(50):
                 ch.publish(test_msg, exchange='test_exchange',
                                      routing_key='test')
             consumer = Consumer(consume_callback)
