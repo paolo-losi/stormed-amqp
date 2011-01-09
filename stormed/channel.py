@@ -66,6 +66,12 @@ class Channel(FrameHandler):
                                      nowait      = False,
                                      arguments   = dict()), callback)
 
+    def qos(self, prefetch_size=0, prefetch_count=0, _global=False,
+                  callback=None):
+        self.send_method(basic.Qos(prefetch_size  = prefetch_size,
+                                   prefetch_count = prefetch_count,
+                                   _global        = _global), callback)
+
     def publish(self, message, exchange, routing_key='', immediate=False,
                       mandatory=False):
         self.send_method(basic.Publish(ticket = 0,

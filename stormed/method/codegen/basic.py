@@ -29,7 +29,7 @@ class Qos(WithFields):
     _fields    = [
         ('prefetch_size'     , 'long'),
         ('prefetch_count'    , 'short'),
-        ('global'            , 'bit'),
+        ('_global'           , 'bit'),
     ]
 
 class QosOk(WithFields):

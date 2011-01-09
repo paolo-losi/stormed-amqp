@@ -2,6 +2,7 @@
 
 import json
 import os.path
+from keyword import iskeyword
 
 codegen_dir = os.path.join(os.path.dirname(__file__), '..')
 
@@ -123,7 +124,9 @@ def _camel_case(s):
     return s.title().replace('-', '')
 
 def fix_name(s):
-    return s.replace(' ','_').replace('-','_').encode('ascii')
+    s = s.replace(' ','_').replace('-','_').encode('ascii')
+    return "_"+s if iskeyword(s) else s
+        
 
 if __name__ == '__main__':
     main()
