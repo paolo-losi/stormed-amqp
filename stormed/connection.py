@@ -31,6 +31,7 @@ class Connection(FrameHandler):
         self.on_disconnect = None
         self.on_error = None
         self._close_callback = None
+        self._frame_count = 0
         super(Connection, self).__init__(connection=self)
 
     def connect(self, callback):
@@ -76,8 +77,19 @@ class Connection(FrameHandler):
         if self.heartbeat:
             self.last_received_frame = time.time()
         self.channels[frame.channel].process_frame(frame)
+        self._frame_count += 1
         if self.stream:
-            FrameReader(self.stream, self._frame_loop)
+            # Every 5 frames ioloop gets the control back in order
+            # to avoid hitting the recursion limit
+            # reading one frame cost 13 level of stack recursion
+            # TODO check if always using _callbacks is faster that frame
+            # counting
+            if self._frame_count == 5:
+                self._frame_count = 0
+                cb = lambda: FrameReader(self.stream, self._frame_loop)
+                self.io_loop._callbacks.append(cb)
+            else:
+                FrameReader(self.stream, self._frame_loop)
 
     def close_stream(self):
         self.status = status.CLOSED
