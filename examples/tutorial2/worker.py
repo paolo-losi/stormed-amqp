@@ -13,7 +13,9 @@ def on_connect():
 def callback(msg):
     print " [x] Received %r" % msg.body
     sleep_time = msg.body.count('.')
-    time.sleep(sleep_time) # we consciously block the ioloop
+    io_loop.add_timeout(time.time() + sleep_time, lambda: done(msg))
+
+def done(msg):
     print " [x] Done"
     msg.ack()
 
