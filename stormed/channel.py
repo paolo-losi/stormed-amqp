@@ -39,8 +39,8 @@ class Channel(FrameHandler):
                                           if_unused = if_unused,
                                           nowait    = False), callback)
 
-    def queue_declare(self, queue, passive=False, durable=True, exclusive=False,
-                            auto_delete=False, callback=None):
+    def queue_declare(self, queue='', passive=False, durable=True,
+                            exclusive=False, auto_delete=False, callback=None):
         self.send_method(_queue.Declare(ticket      = 0,
                                         queue       = queue,
                                         passive     = passive,
