@@ -167,8 +167,7 @@ class FrameHandler(object):
         frames = []
         frames.append(content_header_from_msg(msg, self.channel_id))
         frames.extend(body_frames_from_msg(msg, self.channel_id))
-        for f in frames:
-            self.conn.stream.write(f)
+        self.conn.stream.write(''.join(frames))
 
     def hard_reset(self):
         self.status = status.CLOSED

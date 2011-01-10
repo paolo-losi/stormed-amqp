@@ -38,7 +38,9 @@ class Connection(FrameHandler):
         if self.status is not status.CLOSED:
             raise Exception('Connection status is %s' % self.status)
         self.status = status.OPENING
-        self.stream = IOStream(socket.socket(), io_loop=self.io_loop)
+        sock = socket.socket()
+        sock.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+        self.stream = IOStream(sock, io_loop=self.io_loop)
         self.stream.connect((self.host, self.port), self._handshake)
         self.stream.set_close_callback(self.on_closed_stream)
         self.on_connect = callback
