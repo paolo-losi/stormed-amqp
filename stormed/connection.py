@@ -1,5 +1,6 @@
 import time
 import socket
+
 from tornado.iostream import IOStream
 from tornado.ioloop import IOLoop
 from tornado import stack_context
@@ -10,6 +11,7 @@ from stormed.serialization import parse_method, table2str
 from stormed.channel import Channel
 from stormed.method.connection import Close
 
+TORNADO_1_2 = hasattr(IOStream, 'connect')
 
 class Connection(FrameHandler):
 
@@ -40,10 +42,15 @@ class Connection(FrameHandler):
         self.status = status.OPENING
         sock = socket.socket()
         sock.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
-        self.stream = IOStream(sock, io_loop=self.io_loop)
-        self.stream.connect((self.host, self.port), self._handshake)
-        self.stream.set_close_callback(self.on_closed_stream)
         self.on_connect = callback
+        if TORNADO_1_2:
+            self.stream = IOStream(sock, io_loop=self.io_loop)
+            self.stream.connect((self.host, self.port), self._handshake)
+        else:
+            sock.connect((self.host, self.port))
+            self.stream = IOStream(sock, io_loop=self.io_loop)
+            self._handshake()
+        self.stream.set_close_callback(self.on_closed_stream)
 
     def close(self, callback=None):
         if self.status != status.CLOSING:
@@ -83,15 +90,22 @@ class Connection(FrameHandler):
         if self.stream:
             # Every 5 frames ioloop gets the control back in order
             # to avoid hitting the recursion limit
-            # reading one frame cost 13 level of stack recursion
+            # reading one frame cost 13 levels of stack recursion
             # TODO check if always using _callbacks is faster that frame
             # counting
             if self._frame_count == 5:
                 self._frame_count = 0
                 cb = lambda: FrameReader(self.stream, self._frame_loop)
-                self.io_loop._callbacks.append(cb)
+                self._add_ioloop_callback(cb)
             else:
                 FrameReader(self.stream, self._frame_loop)
+
+    if TORNADO_1_2:
+        def _add_ioloop_callback(self, callback):
+            self.io_loop._callbacks.append(callback)
+    else:
+        def _add_ioloop_callback(self, callback):
+            self.io_loop._callbacks.add(callback)
 
     def close_stream(self):
         self.status = status.CLOSED
