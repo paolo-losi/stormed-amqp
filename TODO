@@ -1,7 +1,8 @@
-* examples
 * review of all methods
 * logging
+* handling of callback failures
 * README
+    * connection and channels
     * document method queueing
 * improve Connection.channels handling
 * fair queueing of outgoing frame (one frame round per channel?)
