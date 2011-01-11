@@ -45,12 +45,13 @@ class Connection(FrameHandler):
         self.on_connect = callback
         if TORNADO_1_2:
             self.stream = IOStream(sock, io_loop=self.io_loop)
+            self.stream.set_close_callback(self.on_closed_stream)
             self.stream.connect((self.host, self.port), self._handshake)
         else:
             sock.connect((self.host, self.port))
             self.stream = IOStream(sock, io_loop=self.io_loop)
+            self.stream.set_close_callback(self.on_closed_stream)
             self._handshake()
-        self.stream.set_close_callback(self.on_closed_stream)
 
     def close(self, callback=None):
         if self.status != status.CLOSING:
