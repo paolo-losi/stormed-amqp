@@ -24,6 +24,7 @@ class Connection(FrameHandler):
         self.vhost = vhost
         self.heartbeat = heartbeat
         self.last_received_frame = None
+        self.frame_max = 0
         self.io_loop = io_loop or IOLoop.instance()
         self.stream = None
         self.status = status.CLOSED
@@ -117,3 +118,10 @@ class Connection(FrameHandler):
         if self.status != status.CLOSED:
             if self.on_disconnect:
                 self.on_disconnect()
+
+    def reset(self):
+        for c in self.channels:
+            if c is not self:
+                c.reset()
+        super(Connection, self).reset()
+        self.close_stream()

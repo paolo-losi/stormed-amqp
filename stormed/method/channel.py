@@ -28,7 +28,7 @@ def handle(self, channel):
     except:
         method = None
         raise
-    channel.hard_reset()
+    channel.reset()
     error_code = id2constant.get(self.reply_code, '')
     if channel.on_error:
         channel.on_error(ChannelError(error_code, self.reply_text, method)) 

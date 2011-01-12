@@ -1,4 +1,4 @@
-from stormed.util import add_method
+from stormed.util import add_method, AmqpError
 from stormed.serialization import table2str
 from stormed.heartbeat import HeartbeatMonitor
 from stormed.frame import status
@@ -8,12 +8,12 @@ from stormed.method.codegen.connection import *
 
 @add_method(Start)
 def handle(self, conn):
-    #FIXME handle missing AMQPLAIN mechanism
-    assert 'AMQPLAIN' in self.mechanisms.split(' ')
-    assert 'en_US' in self.locales.split(' ')
+    if 'AMQPLAIN' not in self.mechanisms.split(' '):
+        raise AmqpError("'AMQPLAIN' not in mechanisms")
+    if 'en_US' not in self.locales.split(' '):
+        raise AmqpError("'en_US' not in locales")
     response = table2str(dict(LOGIN    = conn.username,
                               PASSWORD = conn.password))
-    #TODO more client_properties
     client_properties = {'client': 'stormed-amqp'}
 
     start_ok = StartOk(client_properties=client_properties,
@@ -23,7 +23,8 @@ def handle(self, conn):
 
 @add_method(Tune)
 def handle(self, conn):
-    tune_ok = TuneOk(frame_max   = self.frame_max,
+    conn.frame_max = self.frame_max or 2**16
+    tune_ok = TuneOk(frame_max   = 2**16,
                      channel_max = self.channel_max,
                      heartbeat   = conn.heartbeat)
     conn.write_method(tune_ok)
@@ -37,11 +38,15 @@ def handle(self, conn):
     conn.status = status.OPENED
     if conn.heartbeat:
         HeartbeatMonitor(conn).start()
-    conn.on_connect()
+    try:
+        conn.on_connect()
+    except Exception:
+        logger.error('ERROR in on_connect() callback', exc_info=True)
 
 @add_method(CloseOk)
 def handle(self, conn):
-    conn.close_stream()
+    conn.invoke_callback()
+    conn.reset()
 
 class ConnectionError(object):
 
@@ -57,8 +62,7 @@ def handle(self, conn):
         method = getattr(mod, 'id2method')[self.method_id]
     except:
         method = None
-    for c in conn.channels:
-        c.hard_reset()
+    conn.reset()
     error_code = id2constant.get(self.reply_code, '')
     if conn.on_error:
         conn.on_error(ConnectionError(error_code, self.reply_text, method)) 

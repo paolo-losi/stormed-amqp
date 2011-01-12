@@ -1,6 +1,6 @@
 import struct
 
-from stormed.util import Enum
+from stormed.util import Enum, AmqpError, logger
 from stormed.message import MessageBuilder
 from stormed.serialization import parse_method, dump_method, \
                                   parse_content_header, dump_content_header
@@ -65,22 +65,22 @@ class Frame(object):
                                                           self.channel,
                                                           self.size)
 
-def from_method(method, channel=0):
+def from_method(method, ch):
     payload = dump_method(method)
-    header = frame_header.pack('\x01', channel, len(payload))
+    header = frame_header.pack('\x01', ch.channel_id, len(payload))
     return '%s%s%s' % (header, payload, '\xCE')
 
-def content_header_from_msg(msg, channel):
+def content_header_from_msg(msg, ch):
     payload = dump_content_header(msg)
-    header = frame_header.pack('\x02', channel, len(payload))
+    header = frame_header.pack('\x02', ch.channel_id, len(payload))
     return '%s%s%s' % (header, payload, '\xCE')
 
-def body_frames_from_msg(msg, channel):
-    max_size = 2**16 #FIXME should be set by connection negotiation
+def body_frames_from_msg(msg, ch):
+    max_size = ch.conn.frame_max
     frames = []
     for offset in range(0, len(msg.body), max_size):
         payload = msg.body[offset:offset + max_size]
-        header = frame_header.pack('\x03', channel, len(payload))
+        header = frame_header.pack('\x03', ch.channel_id, len(payload))
         frames.append('%s%s%s' % (header, payload, '\xCE'))
     return frames
 
@@ -104,8 +104,13 @@ class FrameHandler(object):
         return self._pending_cb
 
     def invoke_callback(self, *args, **kargs):
-        self._pending_cb(*args, **kargs)
-        self._pending_cb = None
+        if self._pending_cb:
+            try:
+                self._pending_cb(*args, **kargs)
+            except Exception:
+                logger.error('Error in callback for %s', self._pending_meth,
+                                                         exc_info=True)
+            self._pending_cb = None
 
     def process_frame(self, frame):
         processor = getattr(self, 'process_'+frame.frame_type)
@@ -131,12 +136,16 @@ class FrameHandler(object):
         self.conn.stream.write(HEARTBEAT)
 
     def handle_method(self, method):
-        if hasattr(method, 'handle'):
-            method.handle(self)
         pending_meth = self._pending_meth
+        if hasattr(method, 'handle'):
+            try:
+                method.handle(self)
+            except AmqpError:
+                logger.error('Error while handling %s', method, exc_info=True)
+                self.reset()
+                return
         if pending_meth and method._name.startswith(pending_meth._name):
-            if self._pending_cb:
-                self.invoke_callback()
+            self.invoke_callback()
             self._flush()
 
     def send_method(self, method, callback=None, message=None):
@@ -160,16 +169,16 @@ class FrameHandler(object):
                     callback()
 
     def write_method(self, method):
-        f = from_method(method, self.channel_id)
+        f = from_method(method, self)
         self.conn.stream.write(f)
 
     def write_msg(self, msg):
         frames = []
-        frames.append(content_header_from_msg(msg, self.channel_id))
-        frames.extend(body_frames_from_msg(msg, self.channel_id))
+        frames.append(content_header_from_msg(msg, self))
+        frames.extend(body_frames_from_msg(msg, self))
         self.conn.stream.write(''.join(frames))
 
-    def hard_reset(self):
+    def reset(self):
         self.status = status.CLOSED
         self._method_queue = []
         self._pending_meth = None

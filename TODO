@@ -1,4 +1,5 @@
 * review of all methods
+* check conn/channel status before sending frames
 * logging
 * handling of callback failures
 * README
