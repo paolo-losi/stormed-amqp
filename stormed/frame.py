@@ -9,8 +9,6 @@ status = Enum('OPENING', 'OPENED', 'CLOSED', 'CLOSING')
 
 frame_header = struct.Struct('!cHL')
 
-class FramingError(Exception): pass
-
 class FrameReader(object):
 
     def __init__(self, stream, callback):
@@ -32,7 +30,7 @@ class FrameReader(object):
         payload = payload_with_end[:-1]
         frame_end = payload_with_end[-1]
         if frame_end != '\xCE': #TODO use AMQP constants
-            raise FramingError('unexpected frame end')
+            raise AmqpError('unexpected frame end')
         self.frame.set_payload(payload)
         self.callback(self.frame)
 
