@@ -65,4 +65,8 @@ def handle(self, conn):
     conn.reset()
     error_code = id2constant.get(self.reply_code, '')
     if conn.on_error:
-        conn.on_error(ConnectionError(error_code, self.reply_text, method)) 
+        try:
+            conn.on_error(ConnectionError(error_code, self.reply_text, method)) 
+        except Exception:
+            logger.error('ERROR in on_error() callback', exc_info=True)
+            

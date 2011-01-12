@@ -1,4 +1,10 @@
 * review of all methods
+    - flow control
+    - queue.bind and queue.purge
+    - refactor queue_declare callback
+    - basic.return
+    - basic.recover?
+    - tx.select, tx.commit, tx.rollback
 * check conn/channel status before sending frames
 * logging
 * handling of callback failures

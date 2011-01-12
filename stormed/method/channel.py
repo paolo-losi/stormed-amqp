@@ -31,4 +31,10 @@ def handle(self, channel):
     channel.reset()
     error_code = id2constant.get(self.reply_code, '')
     if channel.on_error:
-        channel.on_error(ChannelError(error_code, self.reply_text, method)) 
+        try:
+            channel.on_error(ChannelError(error_code, self.reply_text, method)) 
+        except Exception:
+            logger.error('ERROR in on_error() callback for channel %d',
+                                             channel.channel_id, exc_info=True)
+
+# TODO flow control
