@@ -38,10 +38,10 @@ class TestChannel(testing.AsyncTestCase):
     def test_queue(self):
         conn = Connection('localhost', io_loop=self.io_loop)
 
-        def on_creation(queue, message_count, consumer_count):
-            assert queue == 'test_queue'
-            assert message_count == 0
-            assert consumer_count == 0
+        def on_creation(qinfo):
+            assert qinfo.queue == 'test_queue'
+            assert qinfo.message_count == 0
+            assert qinfo.consumer_count == 0
 
         def on_connect():
             ch = conn.channel()

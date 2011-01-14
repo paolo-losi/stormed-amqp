@@ -16,12 +16,12 @@ def on_connect():
     ch.exchange_declare(exchange='direct_logs', type='direct')
     ch.queue_declare(exclusive=True, callback=with_temp_queue)
 
-def with_temp_queue(queue_name, message_count, consumer_count):
+def with_temp_queue(qinfo):
     for severity in severities:
         ch.queue_bind(exchange='direct_logs',
-                      queue=queue_name,
+                      queue=qinfo.queue,
                       routing_key=severity)
-    ch.consume(queue_name, callback, no_ack=True)
+    ch.consume(qinfo.queue, callback, no_ack=True)
 
 def callback(msg):
     print " [x] %r:%r" % (msg.rx_data.routing_key, msg.body)

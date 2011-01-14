@@ -16,12 +16,12 @@ def on_connect():
     ch.exchange_declare(exchange='topic_logs', type='topic')
     ch.queue_declare(exclusive=True, callback=with_temp_queue)
 
-def with_temp_queue(queue_name, message_count, consumer_count):
+def with_temp_queue(qinfo):
     for binding_key in binding_keys:
         ch.queue_bind(exchange='topic_logs',
-                      queue=queue_name,
+                      queue=qinfo.queue,
                       routing_key=binding_key)
-    ch.consume(queue_name, callback, no_ack=True)
+    ch.consume(qinfo.queue, callback, no_ack=True)
 
 def callback(msg):
     print " [x] %r:%r" % (msg.rx_data.routing_key, msg.body)

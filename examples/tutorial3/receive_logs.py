@@ -10,9 +10,9 @@ def on_connect():
     ch.exchange_declare(exchange='logs', type='fanout')
     ch.queue_declare(exclusive=True, callback=with_temp_queue)
 
-def with_temp_queue(queue_name, message_count, consumer_count):
-    ch.queue_bind(exchange='logs', queue=queue_name)
-    ch.consume(queue_name, callback, no_ack=True)
+def with_temp_queue(qinfo):
+    ch.queue_bind(exchange='logs', queue=qinfo.queue)
+    ch.consume(qinfo.queue, callback, no_ack=True)
 
 def callback(msg):
     print " [x] %r" % msg.body

@@ -1,6 +1,4 @@
 * review of all methods
-    - queue.unbind and queue.purge
-    - refactor queue_declare callback
     - basic.return
     - basic.recover?
     - tx.select, tx.commit, tx.rollback
