@@ -20,7 +20,9 @@ def parse_fields(fields, data):
             parser = globals()['parse_%s' % f]
             val, offset = parser(data, offset)
             vals.append(val)
-    assert offset == len(data), '%d %d' % (offset, len(data))
+    
+    assert offset + int(bit_parser is not None) == len(data), \
+                                                 '%d %d' % (offset, len(data))
     return vals
 
 def dump(o):

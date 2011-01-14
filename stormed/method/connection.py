@@ -1,4 +1,4 @@
-from stormed.util import add_method, AmqpError
+from stormed.util import add_method, AmqpError, logger
 from stormed.serialization import table2str
 from stormed.heartbeat import HeartbeatMonitor
 from stormed.frame import status

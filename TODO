@@ -1,6 +1,5 @@
 * review of all methods
-    - flow control
-    - queue.bind and queue.purge
+    - queue.unbind and queue.purge
     - refactor queue_declare callback
     - basic.return
     - basic.recover?

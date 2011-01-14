@@ -130,5 +130,44 @@ class TestChannel(testing.AsyncTestCase):
         conn.connect(on_connect)
         self.wait()
 
+    def test_channel_flow(self):
+
+        conn = Connection('localhost', io_loop=self.io_loop)
+
+        def on_connect():
+            self.ch = conn.channel()
+            self.ch.flow(active=False, callback=cleanup)
+
+        def cleanup():
+            conn.close(self.stop)
+
+        conn.connect(on_connect)
+        self.wait()
+
+    def test_purge_queue(self):
+
+        test_msg = Message('test')
+        conn = Connection('localhost', io_loop=self.io_loop)
+
+        def on_connect():
+            self.ch = conn.channel()
+            self.ch.queue_declare('test_purge_queue', auto_delete=True)
+            self.ch.exchange_declare('test_purge_exchange', durable=False)
+            self.ch.queue_bind(queue='test_purge_queue',
+                            exchange='test_purge_exchange')
+
+            self.ch.queue_purge('test_purge_queue')
+            for _ in xrange(3):
+                self.ch.publish(test_msg, exchange='test_purge_exchange')
+            self.ch.queue_purge('test_purge_queue', purged)
+
+        def purged(msg_count):
+            assert msg_count==3, msg_count
+            conn.close(self.stop)
+
+        conn.connect(on_connect)
+        self.wait()
+
+
 if __name__ == '__main__':
     unittest.main()

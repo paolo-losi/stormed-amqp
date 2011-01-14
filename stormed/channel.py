@@ -1,15 +1,18 @@
-from stormed.util import Enum
-from stormed.method.channel import Open, Close
+from stormed.util import Enum, AmqpError
+from stormed.method.channel import Open, Close, Flow
 from stormed.method import exchange as _exchange, basic, queue as _queue
 from stormed.frame import FrameHandler, status
+
+class FlowStoppedException(AmqpError): pass
 
 class Channel(FrameHandler):
 
     def __init__(self, channel_id, conn):
         self.channel_id = channel_id
         self.consumers = {}
-        self.status = status.CLOSED #FIXME is it needed?
+        self.status = status.CLOSED
         self.on_error = None
+        self.flow_stopped = False
         super(Channel, self).__init__(conn)
 
     def open(self, callback=None):
@@ -66,6 +69,18 @@ class Channel(FrameHandler):
                                      nowait      = False,
                                      arguments   = dict()), callback)
 
+    def queue_unbind(self, queue, exchange, routing_key='', callback=None):
+        self.send_method(_queue.Unind(ticket      = 0,
+                                      queue       = queue,
+                                      exchange    = exchange,
+                                      routing_key = routing_key,
+                                      nowait      = False,
+                                      arguments   = dict()), callback)
+
+    def queue_purge(self, queue, callback=None):
+        self.send_method(_queue.Purge(ticket=0, queue=queue, nowait=False),
+                         callback)
+
     def qos(self, prefetch_size=0, prefetch_count=0, _global=False,
                   callback=None):
         self.send_method(basic.Qos(prefetch_size  = prefetch_size,
@@ -74,6 +89,8 @@ class Channel(FrameHandler):
 
     def publish(self, message, exchange, routing_key='', immediate=False,
                       mandatory=False):
+        if self.flow_stopped:
+            raise FlowStoppedException
         self.send_method(basic.Publish(ticket = 0,
                                        exchange = exchange,
                                        routing_key = routing_key,
@@ -101,6 +118,9 @@ class Channel(FrameHandler):
                                  nowait       = False,
                                  arguments    = dict())
         self.send_method(_consume, set_consumer)
+
+    def flow(self, active, callback=None):
+        self.send_method(Flow(active=active), callback)
 
 class Consumer(object):
 

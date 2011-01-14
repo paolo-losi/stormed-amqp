@@ -5,3 +5,7 @@ from stormed.method.codegen.queue import *
 def handle(self, ch):
     if ch.callback:
         ch.invoke_callback(self.queue, self.message_count, self.consumer_count)
+
+@add_method(PurgeOk)
+def handle(self, channel):
+    channel.invoke_callback(self.message_count)

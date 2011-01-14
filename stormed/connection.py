@@ -5,6 +5,7 @@ from tornado.iostream import IOStream
 from tornado.ioloop import IOLoop
 from tornado import stack_context
 
+from stormed.util import logger
 from stormed.frame import FrameReader, FrameHandler, status
 from stormed import frame
 from stormed.serialization import parse_method, table2str

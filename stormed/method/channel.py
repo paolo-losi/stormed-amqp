@@ -32,9 +32,12 @@ def handle(self, channel):
     error_code = id2constant.get(self.reply_code, '')
     if channel.on_error:
         try:
-            channel.on_error(ChannelError(error_code, self.reply_text, method)) 
+            channel.on_error(ChannelError(error_code, self.reply_text, method))
         except Exception:
             logger.error('ERROR in on_error() callback for channel %d',
                                              channel.channel_id, exc_info=True)
 
-# TODO flow control
+@add_method(Flow)
+def handle(self, channel):
+    channel.flow_stopped = not self.active
+    self.send_method(FlowOk(active=self.active))
