@@ -187,5 +187,21 @@ class TestChannel(testing.AsyncTestCase):
         conn.connect(on_connect)
         self.wait()
 
+    def test_reliable_publishing(self):
+        test_msg = Message('test')
+        conn = Connection('localhost', io_loop=self.io_loop)
+
+        def on_connect():
+            ch = conn.channel()
+            ch.exchange_declare('test_imm', durable=False)
+            ch.on_error = lambda: None
+            ch.select()
+            ch.publish(test_msg, exchange='test_imm')
+            ch.commit(lambda: conn.close(self.stop))
+
+        conn.connect(on_connect)
+        self.wait()
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,6 @@
 from stormed.util import Enum, AmqpError
 from stormed.method.channel import Open, Close, Flow
-from stormed.method import exchange as _exchange, basic, queue as _queue
+from stormed.method import exchange as _exchange, basic, queue as _queue, tx
 from stormed.frame import FrameHandler, status
 
 class FlowStoppedException(AmqpError): pass
@@ -128,6 +128,17 @@ class Channel(FrameHandler):
 
     def flow(self, active, callback=None):
         self.send_method(Flow(active=active), callback)
+
+    def select(self, callback=None):
+        if self.on_error is None:
+            raise AmqpError("Channel.on_error callback must be set for tx mode")
+        self.send_method(tx.Select(), callback)
+
+    def commit(self, callback=None):
+        self.send_method(tx.Commit(), callback)
+
+    def rollback(self, callback=None):
+        self.send_method(tx.Rollback(), callback)
 
 class Consumer(object):
 
