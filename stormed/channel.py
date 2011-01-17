@@ -123,6 +123,9 @@ class Channel(FrameHandler):
                                  arguments    = dict())
         self.send_method(_consume, set_consumer)
 
+    def recover(self, requeue=False, callback=None):
+        self.send_method(basic.Recover(requeue=requeue), callback)
+
     def flow(self, active, callback=None):
         self.send_method(Flow(active=active), callback)
 
