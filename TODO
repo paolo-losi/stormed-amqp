@@ -1,5 +1,4 @@
 * review of all methods
-    - basic.return
     - basic.recover?
     - tx.select, tx.commit, tx.rollback
 * check conn/channel status before sending frames

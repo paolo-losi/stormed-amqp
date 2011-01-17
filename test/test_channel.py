@@ -168,6 +168,24 @@ class TestChannel(testing.AsyncTestCase):
         conn.connect(on_connect)
         self.wait()
 
+    def test_basic_return(self):
+        test_msg = Message('test')
+        conn = Connection('localhost', io_loop=self.io_loop)
+
+        def on_connect():
+            ch = conn.channel()
+            ch.on_return = on_return
+            ch.exchange_declare('test_imm', durable=False)
+            ch.publish(test_msg, exchange='test_imm', immediate=True)
+
+        def on_return(msg):
+            rx = msg.rx_data
+            assert rx.reply_code == 313, rx.reply_code  # NO_CONSUMERS
+            assert rx.exchange == 'test_imm', rx.exchange_declare
+            conn.close(self.stop)
+
+        conn.connect(on_connect)
+        self.wait()
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,4 +1,4 @@
-from stormed.util import add_method
+from stormed.util import add_method, logger
 from stormed.method.codegen.basic import *
 
 @add_method(GetOk)
@@ -24,3 +24,13 @@ def handle(self, ch):
     msg = ch.message
     msg.rx_channel = ch
     ch.consumers[self.consumer_tag].callback(msg)
+
+@add_method(Return)
+def handle(self, ch):
+    msg = ch.message
+    msg.rx_channel = ch
+    if ch.on_return:
+        try:
+            ch.on_return(msg)
+        except Exception:
+            logger.error('ERROR in on_return() callback', exc_info=True)

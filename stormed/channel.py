@@ -12,6 +12,7 @@ class Channel(FrameHandler):
         self.consumers = {}
         self.status = status.CLOSED
         self.on_error = None
+        self.on_return = None
         self.flow_stopped = False
         super(Channel, self).__init__(conn)
 
@@ -91,6 +92,9 @@ class Channel(FrameHandler):
                       mandatory=False):
         if self.flow_stopped:
             raise FlowStoppedException
+        if (immediate or mandatory) and self.on_return is None:
+            raise AmqpError("on_return callback must be set for "
+                            "immediate or mandatory publishing")
         self.send_method(basic.Publish(ticket = 0,
                                        exchange = exchange,
                                        routing_key = routing_key,
