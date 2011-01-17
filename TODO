@@ -1,5 +1,3 @@
-* review of all methods
-    - tx.select, tx.commit, tx.rollback
 * check conn/channel status before sending frames
 * logging
 * handling of callback failures
