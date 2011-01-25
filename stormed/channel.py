@@ -1,4 +1,4 @@
-from stormed.util import Enum, AmqpError
+from stormed.util import AmqpError
 from stormed.method.channel import Open, Close, Flow
 from stormed.method import exchange as _exchange, basic, queue as _queue, tx
 from stormed.frame import FrameHandler, status
