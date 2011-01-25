@@ -12,6 +12,23 @@ from stormed.method.connection import Close
 TORNADO_1_2 = hasattr(IOStream, 'connect')
 
 class Connection(FrameHandler):
+    """A "physical" TCP connection to the AMQP server
+
+    heartbeat: int, optional
+               the requested time interval in seconds for heartbeat frames.
+
+    Connection.on_error callback, when set, is called in case of 
+    "hard" AMQP Error. It receives a ConnectionErrorinstance as argument:
+
+        def handle_error(conn_error):
+            print conn_error.method
+            print conn_error.reply_code
+
+        conn.on_error = handle_error
+
+    Connection.on_disconnect callback, when set, is called in case of
+    heartbeat timeout or TCP low level disconnection. It receives no args.
+    """
 
     def __init__(self, host, username='guest', password='guest', vhost='/',
                        port=5672, heartbeat=0, io_loop=None):
@@ -36,6 +53,7 @@ class Connection(FrameHandler):
         super(Connection, self).__init__(connection=self)
 
     def connect(self, callback):
+        """open the connection to the server"""
         if self.status is not status.CLOSED:
             raise Exception('Connection status is %s' % self.status)
         self.status = status.OPENING
@@ -53,6 +71,10 @@ class Connection(FrameHandler):
             self._handshake()
 
     def close(self, callback=None):
+        """cleanly closes the connection to the server.
+        
+        all pending tasks are flushed before connection shutdown"""
+
         if self.status != status.CLOSING:
             self._close_callback = callback
             self.status = status.CLOSING
@@ -70,6 +92,7 @@ class Connection(FrameHandler):
             self.send_method(m, self._close_callback)
 
     def channel(self, callback=None):
+        """get a Channel instance"""
         if self.status == status.OPENED:
             ch = Channel(channel_id=len(self.channels), conn=self)
             self.channels.append(ch)

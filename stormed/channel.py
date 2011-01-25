@@ -6,6 +6,35 @@ from stormed.frame import FrameHandler, status
 class FlowStoppedException(AmqpError): pass
 
 class Channel(FrameHandler):
+    """An AMQP Channel
+
+    And AMQP Channel represent a logical connection to the AMQP server.
+    Unless there are really specific needs, there is no reason to use
+    more than one Channel instance per process for a
+    standard stormed-amqp / tornadoweb application.
+
+    Then Channel class should be only instantiated by
+    stormed.Connection.channel method.
+
+    Channel.on_error callback is called in case of "Soft" AMQP Error with
+    a ChannelError instance as argument:
+
+        def on_channel_error(channel_error):
+            print channel_error.reply_code
+            print channel_error.reply_text
+            print channel_error.method
+
+        channel.on_error = on_channel_error
+
+    Channel.on_return is called when the AMQP server returns a
+    message published by the client ("basic.return").
+    the callback receives a stormed.Message as argument:
+
+        def on_msg_returned(msg):
+            print msg.rx_data.reply_code
+
+        channel.on_return = on_msg_returnedi
+    """
 
     def __init__(self, channel_id, conn):
         self.channel_id = channel_id
@@ -45,6 +74,18 @@ class Channel(FrameHandler):
 
     def queue_declare(self, queue='', passive=False, durable=True,
                             exclusive=False, auto_delete=False, callback=None):
+        """implements "queue.declare" AMQP method
+
+        the callback receives as argument a queue.DeclareOk method instance:
+
+            def on_creation(qinfo):
+                print qinfo.queue # queue name
+                print qinfo.message_count
+                print qinfo.consumer_count
+
+            channel.queue_declare('queue_name', callback=on_creation)
+        """
+
         self.send_method(_queue.Declare(ticket      = 0,
                                         queue       = queue,
                                         passive     = passive,
@@ -79,6 +120,16 @@ class Channel(FrameHandler):
                                       arguments   = dict()), callback)
 
     def queue_purge(self, queue, callback=None):
+        """implements "queue.purge" AMQP method
+
+        the callback receives as argument the number of purged messages:
+
+            def queue_purged(message_count):
+                print message_count
+
+            channel.queue_purge('queue_name')
+        """
+
         self.send_method(_queue.Purge(ticket=0, queue=queue, nowait=False),
                          callback)
 
@@ -102,11 +153,30 @@ class Channel(FrameHandler):
                                        immediate = immediate), message=message)
 
     def get(self, queue, callback, no_ack=False):
+        """implements "basic.get" AMQP method
+
+        the callback receives as argument a stormed.Message instance
+        or None if the AMQP queue is empty:
+
+            def on_msg(msg):
+                if msg is not None:
+                    print msg.body
+                else:
+                    print "empty queue"
+
+            channel.get('queue_name', on_msg)
+        """
         _get = basic.Get(ticket=0, queue=queue, no_ack=no_ack)
         self.send_method(_get, callback)
 
     def consume(self, queue, consumer, no_local=False, no_ack=False,
                       exclusive=False):
+        """implements "basic.consume" AMQP method
+
+        The consumer argument is either a callback or a Consumer instance.
+        The callback is called, with a Message instance as argument,
+        each time the client receives a message from the server.
+        """
         if not isinstance(consumer, Consumer):
             consumer = Consumer(consumer)
         def set_consumer(consumer_tag):
@@ -141,6 +211,12 @@ class Channel(FrameHandler):
         self.send_method(tx.Rollback(), callback)
 
 class Consumer(object):
+    """AMQP Queue consumer
+
+    the Consumer can be used as Channel.consume() "consumer" argument
+    when the application must be able to stop a specific basic.consume message
+    flow from the server.
+    """
 
     def __init__(self, callback):
         self.tag = None
@@ -148,5 +224,6 @@ class Consumer(object):
         self.callback = callback
 
     def cancel(self, callback):
+        """implements "basic.cancel" AMQP method"""
         _cancel = basic.Cancel(consumer_tag=self.tag, nowait=False)
         self.channel.send_method(_cancel, callback)
