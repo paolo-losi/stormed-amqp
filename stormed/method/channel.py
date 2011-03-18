@@ -1,4 +1,4 @@
-from stormed.util import add_method, Enum
+from stormed.util import add_method, Enum, logger
 from stormed.serialization import table2str
 from stormed.frame import status
 from stormed.method.codegen.channel import *
@@ -30,6 +30,9 @@ def handle(self, channel):
         raise
     channel.reset()
     error_code = id2constant.get(self.reply_code, '')
+    logger.warn('Soft Error. channel=%r code=%r. %s', channel.channel_id,
+                                                      error_code,
+                                                      self.reply_text)
     if channel.on_error:
         try:
             channel.on_error(ChannelError(error_code, self.reply_text, method))

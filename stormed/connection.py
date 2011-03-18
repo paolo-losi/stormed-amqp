@@ -17,7 +17,7 @@ class Connection(FrameHandler):
     heartbeat: int, optional
                the requested time interval in seconds for heartbeat frames.
 
-    Connection.on_error callback, when set, is called in case of 
+    Connection.on_error callback, when set, is called in case of
     "hard" AMQP Error. It receives a ConnectionErrorinstance as argument:
 
         def handle_error(conn_error):
@@ -72,7 +72,7 @@ class Connection(FrameHandler):
 
     def close(self, callback=None):
         """cleanly closes the connection to the server.
-        
+
         all pending tasks are flushed before connection shutdown"""
 
         if self.status != status.CLOSING:
@@ -141,7 +141,8 @@ class Connection(FrameHandler):
                 try:
                     self.on_disconnect()
                 except Exception:
-                    logger.error('ERROR in on_error() callback', exc_info=True)
+                    logger.error('ERROR in on_disconnect() callback',
+                                                                 exc_info=True)
 
     def reset(self):
         for c in self.channels:

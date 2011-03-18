@@ -64,9 +64,10 @@ def handle(self, conn):
         method = None
     conn.reset()
     error_code = id2constant.get(self.reply_code, '')
+    logger.warn('Connection Hard Error. code=%r. %s', error_code,
+                                                      self.reply_text)
     if conn.on_error:
         try:
-            conn.on_error(ConnectionError(error_code, self.reply_text, method)) 
+            conn.on_error(ConnectionError(error_code, self.reply_text, method))
         except Exception:
             logger.error('ERROR in on_error() callback', exc_info=True)
-            
