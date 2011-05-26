@@ -189,7 +189,6 @@ def parse_table(data, offset):
         key, offset = parse_shortstr(s, offset)
         typ = s[offset]
         assert typ in field_type_dict, typ
-        print "FOO", field_type_dict[typ]
         val, offset = field_type_dict[typ](s, offset+1)
         d[key] = val
     return d, new_offset
