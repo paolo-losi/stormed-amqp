@@ -20,7 +20,7 @@ def parse_fields(fields, data):
             parser = globals()['parse_%s' % f]
             val, offset = parser(data, offset)
             vals.append(val)
-    
+
     assert offset + int(bit_parser is not None) == len(data), \
                                                  '%d %d' % (offset, len(data))
     return vals
@@ -170,11 +170,15 @@ def dump_shortstr(s):
     encoded_s = s.encode('utf8')
     return '%s%s' % (chr(len(encoded_s)), encoded_s)
 
+def parse_boolean(data, offset):
+    octet, offset = parse_octet(data, offset)
+    return bool(octet), offset
 
-field_type_dict = {
-  's': parse_shortstr,
-  'S': parse_longstr,
-}
+def dump_boolean(b):
+    if b:
+        return chr(1)
+    else:
+        return chr(0)
 
 def parse_table(data, offset):
     s, new_offset = parse_longstr(data, offset)
@@ -185,9 +189,17 @@ def parse_table(data, offset):
         key, offset = parse_shortstr(s, offset)
         typ = s[offset]
         assert typ in field_type_dict, typ
+        print "FOO", field_type_dict[typ]
         val, offset = field_type_dict[typ](s, offset+1)
         d[key] = val
     return d, new_offset
+
+field_type_dict = {
+  't': parse_boolean,
+  's': parse_shortstr,
+  'S': parse_longstr,
+  'F': parse_table,
+}
 
 def table2str(d):
     return ''.join([ '%sS%s' % (dump_shortstr(k), dump_longstr(v))
