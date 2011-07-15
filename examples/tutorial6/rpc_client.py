@@ -1,4 +1,4 @@
-#!/usr/bin/env pythong
+#!/usr/bin/env python
 
 import logging
 import sys
