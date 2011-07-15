@@ -15,7 +15,7 @@ def fib(n):
 def on_connect():
     global ch
     ch = conn.channel()
-    ch.queue_declare(queue='task_queue', durable=True)
+    ch.queue_declare(queue='rpc_queue', durable=True)
     ch.qos(prefetch_count=1)
     ch.consume('rpc_queue', on_request)
 
