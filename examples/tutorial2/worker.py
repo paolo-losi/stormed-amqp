@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import logging
 import time
 from tornado.ioloop import IOLoop
 from stormed import Connection, Message
@@ -19,6 +20,7 @@ def done(msg):
     print " [x] Done"
     msg.ack()
 
+logging.basicConfig()
 conn = Connection(host='localhost')
 conn.connect(on_connect)
 io_loop = IOLoop.instance()
