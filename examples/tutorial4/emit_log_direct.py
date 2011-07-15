@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import logging
 import sys
 from tornado.ioloop import IOLoop
 from stormed import Connection, Message
@@ -18,6 +19,7 @@ def done():
     print " [x] Sent %r:%r" % (severity, msg.body)
     io_loop.stop()
 
+logging.basicConfig()
 conn = Connection(host='localhost')
 conn.connect(on_connect)
 io_loop = IOLoop.instance()
