@@ -1,4 +1,6 @@
 #! /usr/bin/env python
+
+import logging
 import sys
 from tornado.ioloop import IOLoop
 from stormed import Connection, Message
@@ -26,6 +28,7 @@ def with_temp_queue(qinfo):
 def callback(msg):
     print " [x] %r:%r" % (msg.rx_data.routing_key, msg.body)
 
+logging.basicConfig()
 conn = Connection(host='localhost')
 conn.connect(on_connect)
 io_loop = IOLoop.instance()
