@@ -1,3 +1,5 @@
+import time
+import datetime
 from struct import Struct
 from itertools import izip
 
@@ -180,6 +182,15 @@ def dump_boolean(b):
     else:
         return chr(0)
 
+def dump_timestamp(dt):
+    secs = time.mktime(dt.timetuple())
+    return dump_longlong(secs)
+
+def parse_timestamp(data, offset):
+    secs, offset = parse_longlong(data, offset)
+    dt = datetime.datetime.fromtimestamp(secs)
+    return dt, offset
+
 def parse_table(data, offset):
     s, new_offset = parse_longstr(data, offset)
     d = {}
@@ -194,10 +205,11 @@ def parse_table(data, offset):
     return d, new_offset
 
 field_type_dict = {
-  't': parse_boolean,
+  'F': parse_table,
   's': parse_shortstr,
   'S': parse_longstr,
-  'F': parse_table,
+  't': parse_boolean,
+  'T': parse_timestamp,
 }
 
 def table2str(d):

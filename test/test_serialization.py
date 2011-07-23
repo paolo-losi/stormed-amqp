@@ -1,7 +1,9 @@
 import unittest
+from datetime import datetime
 
 from stormed.util import WithFields
-from stormed.serialization import parse_method, dump_method, dump
+from stormed.serialization import parse_method, dump_method, dump, \
+                                  parse_timestamp, dump_timestamp
 from stormed.method import connection
 
 connection_start_payload = \
@@ -58,7 +60,23 @@ class TestBitSerialization(unittest.TestCase):
                        ('b3', 'bit')]
         o = Bunch(o1=97, b1 = False, b2 = True, b3=True)
         self.assertEquals(dump(o), 'a\x06')
-        
+
+class TestTimeStamp(unittest.TestCase):
+
+    def test_from_to(self):
+        dt = datetime(2011, 1, 1, 10, 5)
+        dt2, offset = parse_timestamp(dump_timestamp(dt), 0)
+        self.assertEquals(dt, dt2)
+
+    def test_from(self):
+        parsed_dt, offset = parse_timestamp('\x00\x00\x00\x00M\x1e`p', 0)
+        self.assertEquals(offset, 8)
+        self.assertEquals(parsed_dt, datetime(2011, 1, 1))
+
+    def test_to(self):
+        dt = datetime(2011, 1, 1)
+        self.assertEquals(dump_timestamp(dt), '\x00\x00\x00\x00M\x1e`p')
+
 
 if __name__ == '__main__':
     unittest.main()
