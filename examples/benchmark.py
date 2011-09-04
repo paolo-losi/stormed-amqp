@@ -45,6 +45,12 @@ def on_amqp_connection():
     ch.queue_bind(queue=QNAME, exchange=XNAME)
     ch.consume(QNAME, finish_request, no_ack=True)
 
+    application = web.Application([
+        (r"/round_trip", RoundTripHandler),
+    ])
+
+    http_server = httpserver.HTTPServer(application)
+    http_server.listen(8001)
 
 ch = None
 conn = None
@@ -54,12 +60,6 @@ def main():
     conn = Connection(host='localhost')
     conn.connect(on_amqp_connection)
 
-    application = web.Application([
-        (r"/round_trip", RoundTripHandler),
-    ])
-
-    http_server = httpserver.HTTPServer(application)
-    http_server.listen(8001)
     ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":
