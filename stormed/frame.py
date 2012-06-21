@@ -74,7 +74,7 @@ def content_header_from_msg(msg, ch):
     return '%s%s%s' % (header, payload, '\xCE')
 
 def body_frames_from_msg(msg, ch):
-    max_size = ch.conn.frame_max
+    max_size = ch.conn.frame_max - frame_header.size - 1 # 1 -> end marker size
     frames = []
     for offset in range(0, len(msg.body), max_size):
         payload = msg.body[offset:offset + max_size]
