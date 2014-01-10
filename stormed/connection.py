@@ -131,9 +131,14 @@ class Connection(FrameHandler):
             self.io_loop._callbacks.add(callback)
 
     def close_stream(self):
-        self.status = status.CLOSED
-        self.stream.close()
-        self.stream = None
+        if self.stream is None:
+            return
+
+        try:
+            self.stream.close()
+        finally:
+            self.status = status.CLOSED
+            self.stream = None
 
     def on_closed_stream(self):
         if self.status != status.CLOSED:
