@@ -132,6 +132,10 @@ class Connection(FrameHandler):
 
     def close_stream(self):
         self.status = status.CLOSED
+
+        if self.stream is None:
+            return
+
         self.stream.close()
         self.stream = None
 
