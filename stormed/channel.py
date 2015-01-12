@@ -112,7 +112,7 @@ class Channel(FrameHandler):
                                      arguments   = dict()), callback)
 
     def queue_unbind(self, queue, exchange, routing_key='', callback=None):
-        self.send_method(_queue.Unind(ticket      = 0,
+        self.send_method(_queue.Unbind(ticket     = 0,
                                       queue       = queue,
                                       exchange    = exchange,
                                       routing_key = routing_key,
