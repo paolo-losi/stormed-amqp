@@ -116,7 +116,6 @@ class Channel(FrameHandler):
                                       queue       = queue,
                                       exchange    = exchange,
                                       routing_key = routing_key,
-                                      nowait      = False,
                                       arguments   = dict()), callback)
 
     def queue_purge(self, queue, callback=None):

@@ -154,6 +154,29 @@ class TestChannel(testing.AsyncTestCase):
         conn.connect(on_connect)
         self.wait()
 
+    def test_queue_unbind(self):
+
+        conn = Connection('localhost', io_loop=self.io_loop)
+
+        def on_connect():
+            self.ch = conn.channel()
+            self.ch.queue_declare('test_unbind_queue', auto_delete=True)
+            self.ch.exchange_declare('test_unbind_exchange', durable=False)
+            self.ch.queue_bind(queue='test_unbind_queue',
+                               exchange='test_unbind_exchange',
+                               callback=on_binded)
+
+        def on_binded():
+            self.ch.queue_unbind(queue='test_unbind_queue',
+                                 exchange='test_unbind_exchange',
+                                 callback=on_unbinded)
+
+        def on_unbinded():
+            conn.close(self.stop)
+
+        conn.connect(on_connect)
+        self.wait()
+
     def test_basic_return(self):
         test_msg = Message('test')
         conn = Connection('localhost', io_loop=self.io_loop)
