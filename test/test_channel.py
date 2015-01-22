@@ -15,7 +15,7 @@ class TestChannel(testing.AsyncTestCase):
 
         def clean_up(**kargs):
             conn.close(self.stop)
-    
+
         def on_connect():
             ch = conn.channel(callback=clean_up)
 
@@ -113,7 +113,7 @@ class TestChannel(testing.AsyncTestCase):
         self.wait()
 
     def test_channel_error(self):
-        
+
         conn = Connection('localhost', io_loop=self.io_loop)
 
         def on_connect():
@@ -125,20 +125,6 @@ class TestChannel(testing.AsyncTestCase):
             assert ch_error.method == queue.Bind, ch_error.method
             assert ch_error.reply_code == 'NOT_FOUND'
             assert self.ch.status == status.CLOSED
-            conn.close(self.stop)
-
-        conn.connect(on_connect)
-        self.wait()
-
-    def test_channel_flow(self):
-
-        conn = Connection('localhost', io_loop=self.io_loop)
-
-        def on_connect():
-            self.ch = conn.channel()
-            self.ch.flow(active=False, callback=cleanup)
-
-        def cleanup():
             conn.close(self.stop)
 
         conn.connect(on_connect)
@@ -175,13 +161,13 @@ class TestChannel(testing.AsyncTestCase):
         def on_connect():
             ch = conn.channel()
             ch.on_return = on_return
-            ch.exchange_declare('test_imm', durable=False)
-            ch.publish(test_msg, exchange='test_imm', immediate=True)
+            ch.exchange_declare('test_mand', durable=False)
+            ch.publish(test_msg, exchange='test_mand', mandatory=True)
 
         def on_return(msg):
             rx = msg.rx_data
-            assert rx.reply_code == 313, rx.reply_code  # NO_CONSUMERS
-            assert rx.exchange == 'test_imm', rx.exchange_declare
+            assert rx.reply_code == 312, rx.reply_code  # NO_ROUTE
+            assert rx.exchange == 'test_mand', rx.exchange_declare
             conn.close(self.stop)
 
         conn.connect(on_connect)

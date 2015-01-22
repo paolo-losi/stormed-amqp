@@ -1,3 +1,4 @@
+* test basic.qos
 * check conn/channel status before sending frames
 * logging
 * handling of callback failures
