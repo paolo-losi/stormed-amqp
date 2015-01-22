@@ -80,6 +80,48 @@ class TestChannel(testing.AsyncTestCase):
         conn.connect(on_connect)
         self.wait()
 
+    def test_nack(self):
+        conn = Connection('localhost', io_loop=self.io_loop)
+
+        def on_connect():
+            self.ch = conn.channel()
+            self.ch.exchange_declare('test_exchange', durable=False)
+            self.ch.queue_delete('test_queue')
+            self.ch.queue_declare('test_queue', durable=True)
+            self.ch.qos(prefetch_count=49)
+            self.ch.queue_bind('test_queue', 'test_exchange', 'test')
+            for i in xrange(50):
+                msg = Message('test %d' % i)
+                self.ch.publish(msg, exchange='test_exchange',
+                                     routing_key='test')
+
+            consumer = Consumer(consume_callback)
+            self.ch.consume('test_queue', consumer, no_ack=False)
+
+        def consume_callback(msg):
+            if msg.body == 'test 20':
+                msg.ack()
+            if msg.body == 'test 49':
+                msg.nack(multiple=True)
+                self.ch.close()
+                on_channel_closed()
+
+        msgs = []
+        def on_channel_closed():
+            self.ch2 = conn.channel()
+            for i in  xrange(49):
+                self.ch2.get('test_queue', lambda msg: msgs.append(msg))
+            self.ch2.get('test_queue', check_and_clean_up)
+
+        def check_and_clean_up(msg):
+            msgs.append(msg)
+            good_msgs = [m for m in msgs if m is not None]
+            assert len(good_msgs) == 49, len(good_msgs)
+            conn.close(self.stop)
+
+        conn.connect(on_connect)
+        self.wait()
+
     def test_consume(self):
         global count
         conn = Connection('localhost', io_loop=self.io_loop)
@@ -113,7 +155,6 @@ class TestChannel(testing.AsyncTestCase):
         self.wait()
 
     def test_channel_error(self):
-
         conn = Connection('localhost', io_loop=self.io_loop)
 
         def on_connect():
@@ -131,7 +172,6 @@ class TestChannel(testing.AsyncTestCase):
         self.wait()
 
     def test_purge_queue(self):
-
         test_msg = Message('test')
         conn = Connection('localhost', io_loop=self.io_loop)
 

@@ -40,6 +40,14 @@ class Message(WithFields):
                            multiple=multiple)
         self.rx_channel.send_method(method)
 
+    def nack(self, multiple=False, requeue=True):
+        """reject the message"""
+        if self.rx_channel is None:
+            raise ValueError('cannot nack an unreceived message')
+        method = basic.Nack(delivery_tag=self.rx_data.delivery_tag,
+                            multiple=multiple, requeue=requeue)
+        self.rx_channel.send_method(method)
+
     def reject(self, requeue=True):
         """reject the message"""
         if self.rx_channel is None:
