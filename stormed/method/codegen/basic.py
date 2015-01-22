@@ -233,6 +233,19 @@ class RecoverOk(WithFields):
     _fields    = [
     ]
 
+class Nack(WithFields):
+
+    _name      = "basic.nack"
+    _class_id  = 60
+    _method_id = 120
+    _sync      = False
+    _content   = False
+    _fields    = [
+        ('delivery_tag'      , 'longlong'),
+        ('multiple'          , 'bit'),
+        ('requeue'           , 'bit'),
+    ]
+
 
 id2method = {
     10: Qos,
@@ -252,4 +265,5 @@ id2method = {
     100: RecoverAsync,
     110: Recover,
     111: RecoverOk,
+    120: Nack,
 }

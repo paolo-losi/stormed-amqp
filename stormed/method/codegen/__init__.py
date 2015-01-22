@@ -5,6 +5,7 @@ from stormed.method.codegen import exchange
 from stormed.method.codegen import queue
 from stormed.method.codegen import basic
 from stormed.method.codegen import tx
+from stormed.method.codegen import confirm
 
 id2class = {
     10: connection,
@@ -14,4 +15,5 @@ id2class = {
     50: queue,
     60: basic,
     90: tx,
+    85: confirm,
 }
