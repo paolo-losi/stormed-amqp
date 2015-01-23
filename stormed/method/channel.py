@@ -12,7 +12,9 @@ def handle(self, channel):
 @add_method(CloseOk)
 def handle(self, channel):
     channel.status = status.CLOSED
+    del channel.conn.channels[channel.channel_id]
     channel.invoke_callback()
+    channel.conn = None
     channel.reset()
 
 class ChannelError(object):

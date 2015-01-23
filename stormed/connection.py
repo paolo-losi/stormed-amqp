@@ -42,7 +42,8 @@ class Connection(FrameHandler):
         self.frame_max = 0
         self.io_loop = io_loop or IOLoop.instance()
         self.stream = None
-        self.channels = [self]
+        self.channels = {0: self}
+        self.last_channel_id = 0
         self.channel_id = 0
         self.on_connect = None
         self.on_disconnect = None
@@ -74,27 +75,38 @@ class Connection(FrameHandler):
 
         all pending tasks are flushed before connection shutdown"""
 
-        if self.status != status.CLOSING:
-            self._close_callback = callback
-            self.status = status.CLOSING
-        channels = [ch for ch in self.channels if ch is not self]
-        opened_chs  = [ch for ch in channels if ch.status in (status.OPENED,
-                                                              status.OPENING)]
-        closing_chs = [ch for ch in channels if ch.status == status.CLOSING]
-        if opened_chs:
-            for ch in opened_chs:
+        if self.status not in (status.OPENING, status.OPENED):
+            raise AmqpStatusError('connection is not open')
+
+        self._close_callback = callback
+        self.status = status.CLOSING
+
+        for ch in self.channels.values():
+            if ch is not self and ch.status in (status.OPENING, status.OPENED):
                 ch.close(self.close)
-        elif closing_chs:
-            pass # let's wait
-        else:
-            m = Close(reply_code=0, reply_text='', class_id=0, method_id=0)
-            self.send_method(m, self._close_callback)
+
+        m = Close(reply_code=0, reply_text='', class_id=0, method_id=0)
+        self.send_method(m, self._close_callback)
+
+    def _get_next_channel_id(self):
+        if len(self.channels) == 0x10000:
+            raise AmqpError('max channels per connection exceeded')
+
+        next_id = self.last_channel_id
+        while True:
+            next_id = (next_id + 1) % 0x10000
+            if next_id not in self.channels:
+                break
+
+        self.last_channel_id = next_id
+        return next_id
 
     def channel(self, callback=None):
         """get a Channel instance"""
         if self.status == status.OPENED:
-            ch = Channel(channel_id=len(self.channels), conn=self)
-            self.channels.append(ch)
+            ch_id = self._get_next_channel_id()
+            ch = Channel(channel_id=ch_id, conn=self)
+            self.channels[ch_id] = ch
             ch._open(callback)
             return ch
         else:
@@ -149,7 +161,7 @@ class Connection(FrameHandler):
                                                                  exc_info=True)
 
     def reset(self):
-        for c in self.channels:
+        for c in self.channels.values():
             if c is not self:
                 c.reset()
         super(Connection, self).reset()
