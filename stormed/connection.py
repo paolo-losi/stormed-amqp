@@ -4,7 +4,7 @@ import socket
 from tornado.iostream import IOStream
 from tornado.ioloop import IOLoop
 
-from stormed.util import logger
+from stormed.util import logger, AmqpStatusError
 from stormed.frame import FrameReader, FrameHandler, status
 from stormed.channel import Channel
 from stormed.method.connection import Close
@@ -42,7 +42,6 @@ class Connection(FrameHandler):
         self.frame_max = 0
         self.io_loop = io_loop or IOLoop.instance()
         self.stream = None
-        self.status = status.CLOSED
         self.channels = [self]
         self.channel_id = 0
         self.on_connect = None
@@ -55,7 +54,7 @@ class Connection(FrameHandler):
     def connect(self, callback):
         """open the connection to the server"""
         if self.status is not status.CLOSED:
-            raise Exception('Connection status is %s' % self.status)
+            raise AmqpStatusError('Connection status is %s' % self.status)
         self.status = status.OPENING
         sock = socket.socket()
         sock.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
@@ -99,7 +98,7 @@ class Connection(FrameHandler):
             ch.open(callback)
             return ch
         else:
-            raise ValueError('connection is not opened')
+            raise AmqpStatusError('connection is not opened')
 
     def _handshake(self):
         self.stream.write('AMQP\x00\x00\x09\x01')

@@ -45,6 +45,7 @@ def handle(self, conn):
 
 @add_method(CloseOk)
 def handle(self, conn):
+    conn.status = status.CLOSED
     conn.invoke_callback()
     conn.reset()
 

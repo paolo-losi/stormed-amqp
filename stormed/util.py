@@ -4,6 +4,8 @@ logger = logging.getLogger('stormed-amqp')
 
 class AmqpError(Exception): pass
 
+class AmqpStatusError(AmqpError): pass
+
 class Enum(object):
 
     def __init__(self, *names):

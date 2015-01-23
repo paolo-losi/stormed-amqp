@@ -33,13 +33,12 @@ class Channel(FrameHandler):
         def on_msg_returned(msg):
             print msg.rx_data.reply_code
 
-        channel.on_return = on_msg_returnedi
+        channel.on_return = on_msg_returned
     """
 
     def __init__(self, channel_id, conn):
         self.channel_id = channel_id
         self.consumers = {}
-        self.status = status.CLOSED
         self.on_error = None
         self.on_return = None
         self.flow_stopped = False

@@ -7,6 +7,8 @@ from stormed.channel import Consumer
 from stormed.message import Message
 from stormed.method import queue
 from stormed.frame import status
+from stormed.util import AmqpStatusError
+
 
 class TestChannel(testing.AsyncTestCase):
 
@@ -18,6 +20,29 @@ class TestChannel(testing.AsyncTestCase):
 
         def on_connect():
             ch = conn.channel(callback=clean_up)
+
+        conn.connect(on_connect)
+        self.wait()
+
+    def test_close(self):
+        conn = Connection('localhost', io_loop=self.io_loop)
+
+        def on_connect():
+            self.ch = conn.channel(callback=on_channel)
+
+        def on_channel():
+            self.ch.close(when_channel_close)
+
+        def when_channel_close():
+            try:
+                self.ch.get('foo', callback=lambda msg: None)
+            except AmqpStatusError, e:
+                clean_up()
+            else:
+                assert False, "Expected AmqpStatusError"
+
+        def clean_up():
+            conn.close(self.stop)
 
         conn.connect(on_connect)
         self.wait()

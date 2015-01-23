@@ -12,6 +12,8 @@ def handle(self, channel):
 @add_method(CloseOk)
 def handle(self, channel):
     channel.status = status.CLOSED
+    channel.invoke_callback()
+    channel.reset()
 
 class ChannelError(object):
 

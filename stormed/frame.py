@@ -1,6 +1,6 @@
 import struct
 
-from stormed.util import Enum, AmqpError, logger
+from stormed.util import Enum, AmqpError, AmqpStatusError, logger
 from stormed.message import MessageBuilder
 from stormed.serialization import parse_method, dump_method, \
                                   parse_content_header, dump_content_header
@@ -88,6 +88,7 @@ class FrameHandler(object):
 
     def __init__(self, connection):
         self.conn = connection
+        self.status = status.CLOSED
         self._method_queue = []
         self._pending_meth = None
         self._pending_cb = None
@@ -147,6 +148,9 @@ class FrameHandler(object):
             self._flush()
 
     def send_method(self, method, callback=None, message=None):
+        if self.status == status.CLOSED:
+            raise AmqpStatusError('cannot send on a closed %s' %
+                                  type(self).__name__)
         self._method_queue.append( (method, callback, message) )
         if not self._pending_meth:
             self._flush()
