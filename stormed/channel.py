@@ -44,7 +44,11 @@ class Channel(FrameHandler):
         self.flow_stopped = False
         super(Channel, self).__init__(conn)
 
-    def open(self, callback=None):
+    def _open(self, callback=None):
+        """should be considered a private method
+
+        use Connection.channel() to get a new opened channel
+        """
         self.status = status.OPENING
         self.send_method(Open(out_of_band=''), callback)
 

@@ -95,7 +95,7 @@ class Connection(FrameHandler):
         if self.status == status.OPENED:
             ch = Channel(channel_id=len(self.channels), conn=self)
             self.channels.append(ch)
-            ch.open(callback)
+            ch._open(callback)
             return ch
         else:
             raise AmqpStatusError('connection is not opened')
