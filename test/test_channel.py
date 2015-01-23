@@ -97,6 +97,7 @@ class TestChannel(testing.AsyncTestCase):
             global ch
             ch = conn.channel()
             ch.exchange_declare('test_exchange', durable=False)
+            ch.queue_delete('test_queue')
             ch.queue_declare('test_queue', durable=False)
             ch.queue_bind('test_queue', 'test_exchange', 'test')
             ch.publish(test_msg, exchange='test_exchange', routing_key='test')
@@ -160,7 +161,7 @@ class TestChannel(testing.AsyncTestCase):
         def consume_callback(msg):
             global ch, count, consumer
             count += 1
-            assert msg.body == 'test'
+            assert msg.body == 'test', msg.body
             if count == 50:
                 consumer.cancel(clean_up)
 
@@ -168,6 +169,7 @@ class TestChannel(testing.AsyncTestCase):
             global ch, consumer
             ch = conn.channel()
             ch.exchange_declare('test_exchange', durable=False)
+            ch.queue_delete('test_queue')
             ch.queue_declare('test_queue', durable=False)
             ch.queue_bind('test_queue', 'test_exchange', 'test')
             for _ in xrange(50):
@@ -202,6 +204,7 @@ class TestChannel(testing.AsyncTestCase):
 
         def on_connect():
             self.ch = conn.channel()
+            self.ch.queue_delete('test_queue')
             self.ch.queue_declare('test_purge_queue', auto_delete=True)
             self.ch.exchange_declare('test_purge_exchange', durable=False)
             self.ch.queue_bind(queue='test_purge_queue',
@@ -225,6 +228,7 @@ class TestChannel(testing.AsyncTestCase):
 
         def on_connect():
             self.ch = conn.channel()
+            self.ch.queue_delete('test_unbind_queue')
             self.ch.queue_declare('test_unbind_queue', auto_delete=True)
             self.ch.exchange_declare('test_unbind_exchange', durable=False)
             self.ch.queue_bind(queue='test_unbind_queue',
