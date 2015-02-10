@@ -24,7 +24,7 @@ def handle(self, conn):
 @add_method(Tune)
 def handle(self, conn):
     conn.frame_max = self.frame_max or 2**16
-    tune_ok = TuneOk(frame_max   = 2**16,
+    tune_ok = TuneOk(frame_max   = conn.frame_max,
                      channel_max = self.channel_max,
                      heartbeat   = conn.heartbeat)
     conn.write_method(tune_ok)

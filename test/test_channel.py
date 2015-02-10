@@ -60,6 +60,27 @@ class TestChannel(testing.AsyncTestCase):
         conn.connect(on_connect)
         self.wait()
 
+    def test_publish_huge(self):
+        conn = Connection('localhost', io_loop=self.io_loop)
+        msg = "test message" * 151343
+        test_msg = Message(msg)
+
+        def on_connect():
+            ch = conn.channel()
+            def callback(msg):
+                conn.close(self.stop)
+
+            def on_creation(q):
+                ch.publish(test_msg, exchange='test_exchange', routing_key='test')
+                ch.consume(q.queue, callback)
+
+            ch.exchange_declare('test_exchange', durable=False)
+            ch.queue_declare('test_queue', durable=False, callback=on_creation)
+            ch.queue_bind('test_queue', 'test_exchange', 'test')
+
+        conn.connect(on_connect)
+        self.wait(timeout=1)
+
     def test_queue(self):
         conn = Connection('localhost', io_loop=self.io_loop)
 
