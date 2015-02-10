@@ -71,10 +71,12 @@ class TestChannel(testing.AsyncTestCase):
                 conn.close(self.stop)
 
             def on_creation(q):
-                ch.publish(test_msg, exchange='test_exchange', routing_key='test')
+                ch.publish(test_msg, exchange='test_exchange',
+                                     routing_key='test')
                 ch.consume(q.queue, callback)
 
             ch.exchange_declare('test_exchange', durable=False)
+            ch.queue_delete('test_queue')
             ch.queue_declare('test_queue', durable=False, callback=on_creation)
             ch.queue_bind('test_queue', 'test_exchange', 'test')
 
