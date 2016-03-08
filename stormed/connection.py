@@ -11,6 +11,7 @@ from stormed.method.connection import Close
 
 TORNADO_1_2 = hasattr(IOStream, 'connect')
 
+
 class Connection(FrameHandler):
     """A "physical" TCP connection to the AMQP server
 
@@ -31,7 +32,7 @@ class Connection(FrameHandler):
     """
 
     def __init__(self, host, username='guest', password='guest', vhost='/',
-                       port=5672, heartbeat=0, io_loop=None):
+                 port=5672, heartbeat=0, io_loop=None):
         self.host = host
         self.port = port
         self.username = username
