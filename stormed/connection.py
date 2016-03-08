@@ -52,7 +52,7 @@ class Connection(FrameHandler):
         self._frame_count = 0
         super(Connection, self).__init__(connection=self)
 
-    def connect(self, callback):
+    def connect(self, callback, close_callback=None):
         """open the connection to the server"""
         if self.status is not status.CLOSED:
             raise AmqpStatusError('Connection status is %s' % self.status)
@@ -60,6 +60,7 @@ class Connection(FrameHandler):
         sock = socket.socket()
         sock.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
         self.on_connect = callback
+        self.on_disconnect = close_callback
         if TORNADO_1_2:
             self.stream = IOStream(sock, io_loop=self.io_loop)
             self.stream.set_close_callback(self.on_closed_stream)
