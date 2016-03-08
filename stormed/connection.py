@@ -148,17 +148,19 @@ class Connection(FrameHandler):
         try:
             self.stream.close()
         finally:
-            self.status = status.CLOSED
             self.stream = None
 
     def on_closed_stream(self):
-        if self.status != status.CLOSED:
-            if self.on_disconnect:
-                try:
-                    self.on_disconnect()
-                except Exception:
-                    logger.error('ERROR in on_disconnect() callback',
-                                                                 exc_info=True)
+        if self.status == status.CLOSED:
+            return
+
+        self.status = status.CLOSED
+        if self.on_disconnect:
+            try:
+                self.on_disconnect()
+            except Exception:
+                logger.error('ERROR in on_disconnect() callback',
+                             exc_info=True)
 
     def reset(self):
         for c in self.channels.values():
