@@ -11,6 +11,7 @@ from stormed.method.connection import Close
 
 TORNADO_1_2 = hasattr(IOStream, 'connect')
 
+
 class Connection(FrameHandler):
     """A "physical" TCP connection to the AMQP server
 
@@ -31,7 +32,7 @@ class Connection(FrameHandler):
     """
 
     def __init__(self, host, username='guest', password='guest', vhost='/',
-                       port=5672, heartbeat=0, io_loop=None):
+                 port=5672, heartbeat=0, io_loop=None):
         self.host = host
         self.port = port
         self.username = username
@@ -52,7 +53,7 @@ class Connection(FrameHandler):
         self._frame_count = 0
         super(Connection, self).__init__(connection=self)
 
-    def connect(self, callback):
+    def connect(self, callback, close_callback=None):
         """open the connection to the server"""
         if self.status is not status.CLOSED:
             raise AmqpStatusError('Connection status is %s' % self.status)
@@ -60,6 +61,7 @@ class Connection(FrameHandler):
         sock = socket.socket()
         sock.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
         self.on_connect = callback
+        self.on_disconnect = close_callback
         if TORNADO_1_2:
             self.stream = IOStream(sock, io_loop=self.io_loop)
             self.stream.set_close_callback(self.on_closed_stream)
@@ -148,17 +150,19 @@ class Connection(FrameHandler):
         try:
             self.stream.close()
         finally:
-            self.status = status.CLOSED
             self.stream = None
 
     def on_closed_stream(self):
-        if self.status != status.CLOSED:
-            if self.on_disconnect:
-                try:
-                    self.on_disconnect()
-                except Exception:
-                    logger.error('ERROR in on_disconnect() callback',
-                                                                 exc_info=True)
+        if self.status == status.CLOSED:
+            return
+
+        self.status = status.CLOSED
+        if self.on_disconnect:
+            try:
+                self.on_disconnect()
+            except Exception:
+                logger.error('ERROR in on_disconnect() callback',
+                             exc_info=True)
 
     def reset(self):
         for c in self.channels.values():
